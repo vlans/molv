@@ -46,7 +46,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://www.zhongkaihuaji.com:8088/motortrip/api/merchandise/orderPayQuery',
+            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/orderPayQuery',
             data: {orderNumber: id, userId: '1'}
           }
         )

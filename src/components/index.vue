@@ -28,7 +28,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://www.zhongkaihuaji.com:8088/motortrip/api/merchandise/merchandiseListQuery',
+            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/merchandiseListQuery',
             data: { number: this.current, pageNum: '20' }
           }
         )

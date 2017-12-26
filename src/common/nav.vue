@@ -32,19 +32,19 @@
         nav: [
           {
             name: '首页',
-            route: 'https://www.motortrip.cn/test'
+            route: 'http://120.79.33.51/test'
           },
           {
             name: '目的地',
-            route: 'https://www.motortrip.cn/destinations'
+            route: 'http://120.79.33.51/destinations'
           },
           {
             name: '锦囊',
-            route: 'https://www.motortrip.cn/tips'
+            route: 'http://120.79.33.51/tips'
           },
           {
             name: '行程单',
-            route: 'https://www.motortrip.cn/journeys'
+            route: 'http://120.79.33.51/journeys'
           },
           {
             name: '摩旅商城',
@@ -53,15 +53,15 @@
           },
           {
             name: '摩旅社区',
-            route: 'https://www.motortrip.cn/forum'
+            route: 'http://120.79.33.51/forum'
           },
           {
             name: '登陆/注册',
-            route: 'http://www.motortrip.cn/landing?redirect=http://www.zhongkaihuaji.com:8088/motortrip/api/user/loginShops?url=http://localhost:8081/#/'
+            route: 'http://120.79.33.51/landing?redirect=' + location.href
           },
           {
             name: '',
-            route: 'https://www.motortrip.cn/search',
+            route: 'http://120.79.33.51/search',
             icon: true
           }
         ]
