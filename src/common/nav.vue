@@ -12,6 +12,21 @@
 <script>
   export default {
     props: ['orderActive'],
+    methods: {
+      async login (url) {
+        var { data, errorCode } = await this.$http(
+          {
+            type: 'post',
+            url: url,
+            data: { url: location.href }
+          }
+        )
+        if (errorCode === 0) {
+          this.card = data.merchandiseList
+          this.total = data.rowCount
+        }
+      }
+    },
     data () {
       return {
         nav: [
@@ -42,7 +57,7 @@
           },
           {
             name: '登陆/注册',
-            route: ''
+            route: 'http://www.motortrip.cn/landing?redirect=http://www.zhongkaihuaji.com:8088/motortrip/api/user/loginShops?url=http://localhost:8081/#/'
           },
           {
             name: '',
