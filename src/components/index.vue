@@ -9,7 +9,7 @@
             h2.price ￥{{item.price}}
           .active
             a.down(:href="item.downloadUrl") 下载文件
-            router-link.pay(:to="'/details/' + item.merchandiseId") 购买服务
+            a.pay(@click="shopSer(item.merchandiseId)") 购买服务
         p.service 服务包含：{{item.route}}
         p.desc {{item.des}}
         p.date 更新时间：{{item.updateTime}}
@@ -24,12 +24,20 @@
       this.initData()
     },
     methods: {
+      async shopSer (id) {
+        var uid = localStorage.getItem('uid')
+        if (!uid) {
+          location.href = 'http://120.79.33.51/landing?redirect=' + location.href
+          return
+        }
+        this.$router.push('/details/' + id)
+      },
       async initData () {
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/merchandise/merchandiseListQuery',
-            data: { number: this.current, pageNum: '20' }
+            data: { number: this.current, pageNum: '10' }
           }
         )
         if (errorCode === 0) {
@@ -127,6 +135,7 @@
       }
       .pay {
         background: #fb8606;
+        cursor: pointer;
       }
     }
   }

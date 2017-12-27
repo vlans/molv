@@ -26,8 +26,8 @@
         .choice
           .zhifubao(@click="choicePayment(1)", :class="{bao_active: baoActive}")
             icon.bao-check(name="check", color="#fb8606", v-show="baoIcon")
-          .wechat(@click="choicePayment(2)", :class="{wechat_active: wechatActive}")
-            icon.wechat-check(name="check", color="#fb8606", v-show="wechatIcon")
+          // .wechat(@click="choicePayment(2)", :class="{wechat_active: wechatActive}")
+          //   icon.wechat-check(name="check", color="#fb8606", v-show="wechatIcon")
       .submit(@click="submit") 确认
 </template>
 <script>
@@ -112,7 +112,7 @@
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/merchandise/addOrder',
-            data: {userId: '1', merchandiseId: id, phone: this.phone, QQ: this.qq, type: this.type}
+            data: {userId: localStorage.getItem('uid'), merchandiseId: id, phone: this.phone, QQ: this.qq, type: this.type}
           }
         )
         if (errorCode === 0) {
@@ -240,12 +240,12 @@
       margin-top: -8px;
     }
     .zhifubao {
-      background: url('../../assets/zhifubao.jpg') no-repeat -24px -37px;
+      background: url('http://120.79.33.51:8080/motortrip/dist/static/zhifubao.jpg') no-repeat -24px -37px;
       background-size: 72%;
       margin-right: 20px;
     }
     .wechat {
-      background: url('../../assets/wechat.jpg') no-repeat 10px -19px;
+      background: url('http://120.79.33.51:8080/motortrip/dist/static/wechat.jpg') no-repeat 10px -19px;
       background-size: 60%;
     }
     .submit {

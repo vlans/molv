@@ -1,8 +1,8 @@
 <template lang="jade">
   .order
     .user
-      span.avator
-      h2 青木
+      span.avator(:style="{background: 'url(' + avatar + ') no-repeat'}")
+      h2 {{userName}}
     .manage
       .container
         .left_nav
@@ -42,20 +42,29 @@
       return {
         order: [],
         total: 0,
-        current: 1
+        current: 1,
+        userName: '',
+        avatar: ''
       }
     },
     created () {
+      this.initUser()
       this.initData()
       this.$emit('orderActive', false)
     },
     methods: {
+      initUser () {
+        try {
+          this.userName = JSON.parse(localStorage.getItem('user')).user.username
+          this.avatar = JSON.parse(localStorage.getItem('user')).user.avatar === '/images/icon/avatar.png' ? 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png' : JSON.parse(localStorage.getItem('user')).user.avatar
+        } catch (e) {}
+      },
       async initData () {
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/user/userOrderListQuery',
-            data: {userId: '1', number: this.current, pageNum: '20'}
+            data: {userId: localStorage.getItem('uid'), number: this.current, pageNum: '10'}
           }
         )
         if (errorCode === 0) {
@@ -76,7 +85,7 @@
 <style lang="scss" scoped>
   .user {
     height: 300px;
-    background: url('../../assets/bg_user_banner.jpg') no-repeat;
+    background: url('http://120.79.33.51:8080/motortrip/dist/static/bg_user_banner.jpg') no-repeat;
     background-size: cover;
     text-align: center;
     line-height: 300px;
@@ -92,6 +101,7 @@
       display: inline-block;
       width: 100px;
       height: 100px;
+      background-size: cover;
       background: red;
       border-radius: 100%;
     }
