@@ -5,11 +5,11 @@
         img(src="../assets/logo.png")
     .nav
       ul(style="position: relative;")
-        li(v-for="(item, index) in nav", :class="{index: item.login}") 
-          a.route(v-if="!item.login", :href="item.route", :class="{active: item.active && orderActive, search: item.icon, user: item.login}") {{ !item.login ? item.name : ''}}
-            img(v-if="item.login", :src="item.licon", class="avatar")
-            img(v-else-if="item.icon && !item.login", :src="item.icon")
-            img(v-if="item.login", :src="item.down", class="down")
+        li(v-for="(item, index) in nav", :class="{index: item.login}")
+          a.route(v-if="!item.login && !item.active", :href="item.route", :class="{active: item.active && orderActive, search: item.icon, user: item.login}") {{ !item.login ? item.name : ''}}
+            img(v-if="item.icon", :src="item.icon")
+          router-link.route(v-else-if="!item.login && item.active", :to="item.route", :class="{active: item.active && orderActive, search: item.icon, user: item.login}") {{ !item.login ? item.name : ''}}
+            img(v-if="item.icon", :src="item.icon")
           a.route(v-else, :class="{active: item.active && orderActive, search: item.icon, user: item.login}") {{ !item.login ? item.name : ''}}
             img(v-if="item.login", :src="item.licon", class="avatar", @click.stop="selectUser")
             img(v-else-if="item.icon && !item.login", :src="item.icon")
@@ -22,9 +22,9 @@
               a.user_jump(href="http://120.79.33.51/users/collect") 我的收藏
             li
               router-link.user_jump(to="/order") 我的订单
-            li 修改密码
-            li
-              a.user_jump(href="http://120.79.33.51/logout") 退出
+            li(@click="editPwd") 修改密码
+            li(@click="logout")
+              a.user_jump 退出
 </template>
 <script>
   import $ from 'jquery'
@@ -55,6 +55,31 @@
       }
     },
     methods: {
+      logout () {
+        this.$http(
+          {
+            dataType: 'json',
+            crossDomain: true,
+            xhrFields: {
+              withCredentials: true
+            },
+            type: 'get',
+            url: 'http://120.79.33.51/users/logout'
+          }
+        )
+        this.flag = false
+        this.nav.splice(6, 1, {
+          name: '登陆/注册',
+          route: 'http://120.79.33.51/landing?redirect=' + location.href,
+          licon: 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png',
+          login: false,
+          down: 'http://120.79.33.51:8080/motortrip/dist/static/down.png'
+        })
+      },
+      editPwd () {
+        this.flag = false
+        this.$emit('showModal')
+      },
       selectUser () {
         this.flag = true
         $(document).on('click', () => {
@@ -98,7 +123,7 @@
           {
             name: '摩旅商城',
             active: true,
-            route: ''
+            route: '/'
           },
           {
             name: '摩旅社区',
@@ -138,6 +163,7 @@
     top: 80px;
     right: 60px;
     li {
+      cursor: pointer;
       width: 100%;
       height: 56px!important;
       line-height: 56px;

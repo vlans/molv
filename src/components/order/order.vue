@@ -60,11 +60,12 @@
         } catch (e) {}
       },
       async initData () {
+        var id = localStorage.getItem('uid')
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/user/userOrderListQuery',
-            data: {userId: localStorage.getItem('uid'), number: this.current, pageNum: '10'}
+            data: {userId: id, number: this.current, pageNum: '10'}
           }
         )
         if (errorCode === 0) {
@@ -92,17 +93,17 @@
     color: #fff;
     h2 {
       position: relative;
-      font-weight: normal;
       height: 30px;
       line-height: 30px;
-      top: -53%;
+      font-weight: 600;
+      font-size: 18px;
+      top: -49%;
     }
     .avator {
       display: inline-block;
       width: 100px;
       height: 100px;
-      background-size: cover;
-      background: red;
+      background-size: cover!important;
       border-radius: 100%;
     }
   }

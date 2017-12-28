@@ -25,12 +25,40 @@
     },
     methods: {
       async shopSer (id) {
-        var uid = localStorage.getItem('uid')
-        if (!uid) {
+        var { data } = await this.$http(
+          {
+            dataType: 'json',
+            crossDomain: true,
+            xhrFields: {
+              withCredentials: true
+            },
+            type: 'get',
+            url: 'http://120.79.33.51/users/checkAuth'
+          }
+        )
+        if (data.auth === false) {
+          localStorage.removeItem('uid')
+          localStorage.removeItem('user')
           location.href = 'http://120.79.33.51/landing?redirect=' + location.href
           return
         }
+        localStorage.setItem('uid', data.uid)
+        this.validatorLogin(data.uid)
         this.$router.push('/details/' + id)
+      },
+      async validatorLogin (id) {
+        var { data, errorCode } = await this.$http(
+          {
+            type: 'post',
+            url: 'http://120.79.33.51:8080/motortrip/api/user/userQuery',
+            data: { userId: id }
+          }
+        )
+        if (errorCode === 0) {
+          this.userInfo = data
+          localStorage.setItem('user', JSON.stringify(data))
+          this.$emit('getUser', data)
+        }
       },
       async initData () {
         var { data, errorCode } = await this.$http(
@@ -65,7 +93,8 @@
           }
         ],
         total: '',
-        current: 1
+        current: 1,
+        userInfo: ''
       }
     },
     components: {

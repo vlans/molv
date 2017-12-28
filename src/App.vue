@@ -1,50 +1,59 @@
 <template lang="jade">
   #app
-    nav-bar(:orderActive="active", :userInfo="userInfo")
-    router-view(@orderActive="orderActive")
+    nav-bar(:orderActive="active", :userInfo="userInfo", @showModal="showModal")
+    router-view(@orderActive="orderActive", @getUser="getUser")
     foot
+    forget(:show="show")
 </template>
 
 <script>
   import navBar from './common/nav'
   import foot from './common/foot'
+  import forget from './common/forget'
   export default {
     name: 'app',
-    mounted () {
-      var local = ''
-      if (this.$route.query.uid) {
-        local = this.$route.query.uid
-        console.log(1111)
-      } else if (location.href.split('=')[1]) {
-        local = location.href.split('=')[1].split('#')[0]
-        console.log(2222)
-      } else {
-        console.log(3333)
-        localStorage.removeItem('uid')
-        localStorage.removeItem('user')
-      }
-      console.log(local, localStorage.getItem('uid'), 4444)
-      var uid = local || localStorage.getItem('uid')
-      var href = location.href
-      if (uid) {
-        localStorage.setItem('uid', uid)
-        location.href = href.split('?')[0]
-        this.validatorLogin(uid)
-      }
-    },
     data () {
       return {
         active: true,
-        login: true,
-        userInfo: ''
+        userInfo: '',
+        indexs: false,
+        show: false
       }
     },
+    created () {
+      this.checkUid()
+    },
     methods: {
+      getUser (v) {
+        this.userInfo = v
+      },
+      showModal () {
+        this.show = !this.show
+      },
+      async checkUid () {
+        var { data } = await this.$http(
+          {
+            dataType: 'json',
+            crossDomain: true,
+            xhrFields: {
+              withCredentials: true
+            },
+            type: 'get',
+            url: 'http://120.79.33.51/users/checkAuth'
+          }
+        )
+        if (data.auth === false) {
+          localStorage.removeItem('uid')
+          localStorage.removeItem('user')
+          return
+        }
+        localStorage.setItem('uid', data.uid)
+        this.validatorLogin(data.uid)
+      },
       orderActive (v) {
         this.active = false
       },
       async validatorLogin (id) {
-        console.log(333333, id, 44444)
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
@@ -60,7 +69,8 @@
     },
     components: {
       navBar,
-      foot
+      foot,
+      forget
     }
   }
 </script>

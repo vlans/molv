@@ -108,11 +108,12 @@
         var check = this.validator()
         if (check) return
         var id = this.$route.params.id
+        var uid = localStorage.getItem('uid')
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/merchandise/addOrder',
-            data: {userId: localStorage.getItem('uid'), merchandiseId: id, phone: this.phone, QQ: this.qq, type: this.type}
+            data: {userId: uid, merchandiseId: id, phone: this.phone, QQ: this.qq, type: this.type}
           }
         )
         if (errorCode === 0) {

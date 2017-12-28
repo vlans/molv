@@ -43,11 +43,12 @@
     methods: {
       async soketInterval () {
         var id = this.$route.params.id
+        var uid = localStorage.getItem('uid')
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
             url: 'http://120.79.33.51:8080/motortrip/api/merchandise/orderPayQuery',
-            data: {orderNumber: id, userId: '1'}
+            data: {orderNumber: id, userId: uid}
           }
         )
         if (errorCode === 0 && data) {
