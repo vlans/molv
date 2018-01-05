@@ -111,7 +111,6 @@
   .scroll {
     height: calc(100% - 134px);
     overflow: auto;
-    padding-bottom: 55px;
   }
   .day_add {
     border-radius: 0!important;
@@ -120,7 +119,7 @@
   }
   .delete_icon {
     position: absolute;
-    right: 20px;
+    left: calc(100% - 10%);
     top: 10px;
     cursor: pointer;
   }
@@ -158,7 +157,9 @@
     background-color: #f4f4f4;
     min-height: 80px;
     border-bottom: 1px solid #ddd;
-    padding: 18px;
+    padding-top: 18px;
+    padding-bottom: 25px;
+    padding-left: 18px;
   }
   .day:after {
     clear: both;
@@ -182,6 +183,8 @@
   .custom_container {
     padding: 20px 0;
     height: calc(100% - 80px);
+    margin-left: 0!important;
+    margin-right: 0!important;
   }
   .col {
     height: 100%;

@@ -25,7 +25,7 @@
             li(@click="editPwd") 修改密码
             li(@click="logout")
               a.user_jump 退出
-    .nav
+    .nav(v-if="custom")
       ul(style="position: relative;")
         li.submit
           Button(type="warning", size="large") 保存
@@ -247,7 +247,6 @@
     .route {
       display: inline-block;
       text-decoration: none;
-      height: 20px;
       padding: 30px 20px;
       color: #999;
     }
