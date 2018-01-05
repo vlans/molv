@@ -3,7 +3,7 @@
     .logo
       a(href="#")
         img(src="../assets/logo.png")
-    .nav
+    .nav(v-if="!custom")
       ul(style="position: relative;")
         li(v-for="(item, index) in nav", :class="{index: item.login}")
           a.route(v-if="!item.login && !item.active", :href="item.route", :class="{active: item.active && orderActive, search: item.icon, user: item.login}") {{ !item.login ? item.name : ''}}
@@ -16,7 +16,7 @@
             img(v-if="item.login", :src="item.down", class="down", @click.stop="selectUser")
         li.user-item(v-show="flag")
           ul
-            li 
+            li
               a.user_jump(href="http://120.79.33.51/users/journey") 个人中心
             li
               a.user_jump(href="http://120.79.33.51/users/collect") 我的收藏
@@ -25,6 +25,10 @@
             li(@click="editPwd") 修改密码
             li(@click="logout")
               a.user_jump 退出
+    .nav
+      ul(style="position: relative;")
+        li.submit
+          Button(type="warning", size="large") 保存
 </template>
 <script>
   import $ from 'jquery'
@@ -52,6 +56,11 @@
             down: 'http://120.79.33.51:8080/motortrip/dist/static/down.png'
           })
         }
+      }
+    },
+    created () {
+      if (this.$route.name === 'custom') {
+        this.custom = true
       }
     },
     methods: {
@@ -102,6 +111,7 @@
     },
     data () {
       return {
+        custom: false,
         flag: false,
         nav: [
           {
@@ -147,6 +157,13 @@
   }
 </script>
 <style lang="scss" scoped>
+  .submit {
+    line-height: 80px;
+    font-size: 16px;
+    padding-right: 30px;
+    color: #fff;
+    user-select: none;
+  }
   .user_jump {
     color: #fff;
     text-decoration: none;

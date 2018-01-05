@@ -1,10 +1,20 @@
 <template lang="jade">
-  .foot
+  .foot(v-if="!custom")
     img(src="../assets/foot_logo.png")
     p 隐私保护|版权所有|©2017摩旅网沪ICP备14038740号-1
 </template>
 <script>
   export default {
+    data () {
+      return {
+        custom: false
+      }
+    },
+    created () {
+      if (this.$route.name === 'custom') {
+        this.custom = true
+      }
+    }
   }
 </script>
 <style lang="scss" scoped>

@@ -5,6 +5,7 @@ import Details from '@/components/order/details'
 import Success from '@/components/order/success'
 import Order from '@/components/order/order'
 import Pagination from '@/common/pagination'
+import Custom from '@/components/custom'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/pagination',
       name: 'Pagination',
       component: Pagination
+    },
+    {
+      path: '/custom',
+      name: 'custom',
+      component: Custom
     }
   ]
 })

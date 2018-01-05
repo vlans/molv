@@ -76,12 +76,15 @@
 </script>
 
 <style lang="scss">
+  html, body, #app {
+    height: 100%;
+  }
   body {
     background: url('http://120.79.33.51:8080/motortrip/dist/static/background.jpg');
   }
   #app {
     font-size: 14px;
     min-width: 1000px;
-    
+
   }
 </style>
