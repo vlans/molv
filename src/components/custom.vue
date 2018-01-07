@@ -14,53 +14,110 @@
           <span class="required">&nbsp;</span>
           出发时间
         </span>
-        <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="datetime" format="yyyy-MM-dd HH:mm" class="size" placeholder="请选择出发时间"></DatePicker>
+        <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="date" format="yyyy-MM-dd" class="size" placeholder="请选择出发时间"></DatePicker>
       </p>
       <div class="scroll">
-        <div class="day" v-for="(item, index) in day">
+        <div class="day" v-for="(item, k) in day" @click="changeDay(k)">
           <h3 class="day_txt">
-            D{{ index + 1 }}
+            D{{ k + 1 }}
           </h3>
           <div class="day_address">
             <p class="day_time">
-              {{ formatTime }}
+              {{ item.formatTime }}
             </p>
             <div class="day_hi day_departure">
               <span>出发地</span>
               <p>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
+                <Tag type="border" v-if="item.departure.length">{{item.departure.join('')}}</Tag>
               </p>
             </div>
             <div class="day_hi day_via">
               <span>途经地</span>
               <p>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
+                <Tag type="border" v-if="value.address.length" v-for="(value, v) in item.passing" :key="v">{{value.address.join('')}}</Tag>
               </p>
             </div>
             <div class="day_hi day_intent">
               <span>目的地</span>
               <p>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
-                <Tag type="border">北京市朝阳区</Tag>
+                <Tag type="border" v-if="item.destination.length">{{item.destination.join('')}}</Tag>
               </p>
             </div>
           </div>
-          <Icon v-if="day.length > 1" @click.native="deleteDay(index)" type="trash-a" class="delete_icon" size="26" color="#ed3f14"></Icon>
+          <Icon v-if="day.length > 1" @click.native.stop="deleteDay(index)" type="trash-a" class="delete_icon" size="26" color="#ed3f14"></Icon>
         </div>
       </div>
       <Button @click="createDay" long size="large" class="day_add">添加新的一天</Button>
     </div>
     </Col>
     <Col span="6">
-    <div class="col">地区</div>
+    <div class="col">
+      <div class="basic">
+        <span class="label">
+          {{day[index].formatTime}}
+        </span>
+        <p class="distance">
+          总共路程 <span class="light_txt">{{day[index].distance}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime}}</span>
+        </p>
+        <p class="distance_time">
+          总共游玩 <span class="light_txt">{{day[index].sceniCount}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime}}</span>
+        </p>
+      </div>
+      <p class="basic">
+        <span class="label">
+          <span class="required">*</span>
+          出发地
+        </span>
+        <Cascader class="address_cascader" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
+      </p>
+      <p class="basic">
+        <span class="label">
+          <span class="required">*</span>
+          目的地
+        </span>
+        <Cascader class="address_cascader" change-on-select v-model="day[index].destination" :data="addressData" filterable></Cascader>
+      </p>
+      <div class="basic passing">
+        <span class="label">
+          <span class="required">*</span>
+          途经地
+        </span>
+        <Button type="warning" size="small" class="add_passing" @click="addPassing(day[index].passing)">添加途经地</Button>
+        <p v-for="(item, v) in day[index].passing" style="position: relative;">
+          <Cascader change-on-select class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
+          <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
+        </p>
+      </div>
+      <div class="scenic_list">
+        <Timeline>
+          <TimelineItem color="green" v-for="(item, v) in day[index].trip" :key="v">
+            <Icon type="location" slot="dot" size="28"></Icon>
+            <div style="margin-top: -6px;">
+              <h2 class="scenic_title">{{item.scenicName}}
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime}}</span>
+              </h2>
+            </div>
+            <div class="content_txt">
+              <Icon type="android-bicycle" size="30" class="riding_icon"></Icon>
+              <p class="riding_txt">
+                <span class="light_txt">{{item.rideDistance}}</span>
+                <span>，预计骑行</span>
+                <span class="light_txt">{{item.rideTime}}</span>
+              </p>
+            </div>
+          </TimelineItem>
+        </Timeline>
+      </div>
+      <div>
+        <Modal
+          v-model="deleteModel"
+          title="删除当前途经地"
+          @on-ok="deletePassConfrim">
+          <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
+        </Modal>
+      </div>
+    </div>
     </Col>
     <Col span="12">
     <div class="col">地图和景点</div>
@@ -73,19 +130,80 @@
   export default {
     name: 'custom',
     methods: {
+      changeDay (k) {
+        this.index = k
+      },
+      deletePassConfrim () {
+        this.passArray.splice(this.i, 1)
+      },
+      deletePass (passArray, i, passValue) {
+        if (passValue.length) {
+          this.deletePassTxt = passValue.join('')
+        } else {
+          this.deletePassTxt = ''
+        }
+        this.i = i
+        this.passArray = passArray
+        this.deleteModel = true
+      },
+      addPassing (pass) {
+        pass.push(
+          {
+            address: []
+          }
+        )
+      },
       createDay () {
-        this.day.push(3)
+        var formatTime = moment(this.day[this.day.length - 1].formatTime).add(1, 'd').format('YYYY-MM-DD')
+        this.day.push(
+          {
+            formatTime: formatTime,
+            date: '',
+            departure: [],
+            destination: [],
+            passing: [
+              {
+                address: []
+              }
+            ],
+            distance: '',
+            rideTime: '',
+            sceniCount: '',
+            playTime: '',
+            trip: [
+              {
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ]
+          }
+        )
       },
       deleteDay (index) {
         this.day.splice(index, 1)
+        this.index = index - 1
         console.log('删除成功')
+        this.resetTime('delete')
       },
       format () {
-        this.formatTime = moment(this.time).format('YYYY-MM-DD HH:mm')
+        this.day[this.index].formatTime = moment(this.time).format('YYYY-MM-DD')
       },
       dateChange (v) {
-        this.formatTime = v
-        console.log(this.formatTime)
+        this.day[0].formatTime = v
+        this.resetTime('change')
+      },
+      resetTime (flag) {
+        this.day.forEach((v, i) => {
+          if (flag === 'change') {
+            if (i !== 0) {
+              v.formatTime = moment(this.day[0].formatTime).add(i, 'd').format('YYYY-MM-DD')
+            }
+          } else {
+            v.formatTime = moment(this.time).add(i, 'd').format('YYYY-MM-DD')
+          }
+        })
       }
     },
     created () {
@@ -93,10 +211,64 @@
     },
     data () {
       return {
+        i: 0,
+        passArray: [],
+        deletePassTxt: '',
+        deleteModel: false,
+        addressData: [
+          {
+            value: '北京市',
+            label: '北京市',
+            children: [
+              {
+                value: '朝阳区',
+                label: '朝阳区',
+                children: [
+                  {
+                    value: '欢乐谷',
+                    label: '欢乐谷'
+                  },
+                  {
+                    value: '西单大悦城',
+                    label: '西单大悦城'
+                  },
+                  {
+                    value: '王府井百货',
+                    label: '王府井百货'
+                  }
+                ]
+              }
+            ]
+          }
+        ],
         name: '',
         time: new Date(),
-        day: [1, 2],
-        formatTime: '',
+        index: 0,
+        day: [
+          {
+            formatTime: '',
+            date: '',
+            departure: [],
+            destination: [],
+            passing: [
+              {
+                address: []
+              }
+            ],
+            distance: '',
+            rideTime: '',
+            sceniCount: '',
+            playTime: '',
+            trip: [
+              {
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ]
+          }
+        ],
         dateOptions: {
           disabledDate (date) {
             return date && date.valueOf() < Date.now() - 86400000
@@ -107,10 +279,73 @@
   }
 </script>
 
-<style scoped>
+<style>
+  .delete_pass {
+    position: absolute;
+    right: 20px;
+    top: 2px;
+    cursor: pointer;
+  }
+  .address_pass {
+    width: 85%;
+  }
+  .riding_txt {
+    font-size: 14px;
+    margin-left: 12px;
+  }
+  .content_txt:after {
+    clear: both;
+    content: '';
+    display: block;
+  }
+  .riding_icon {
+    margin: 2.5px 0;
+  }
+  .riding_icon, .riding_txt {
+    float: left;
+  }
+  .content_txt {
+    padding-left: 12px;
+    margin-top: 18px;
+    background: #f5f5f5;
+    height: 35px;
+    line-height: 35px;
+  }
+  .txt {
+    color: gray;
+  }
+  .txt, .time {
+    font-size: 14px;
+  }
+  .scenic_list {
+    padding: 15px;
+  }
+  .distance {
+    margin: 6px 0;
+  }
+  .light_txt {
+    color: rgb(251, 134, 6);
+  }
+  .address_cascader {
+    margin-top: 10px;
+  }
+  .passing {
+    position: relative;
+    height: 240px;
+    overflow: auto;
+  }
+  .add_passing {
+    position: absolute;
+    right: 16px;
+    top: 15px;
+  }
+  #app {
+    min-width: 1400px;
+  }
   .scroll {
     height: calc(100% - 134px);
     overflow: auto;
+    padding-bottom: 40px;
   }
   .day_add {
     border-radius: 0!important;
@@ -119,7 +354,7 @@
   }
   .delete_icon {
     position: absolute;
-    left: calc(100% - 10%);
+    right: 20px;
     top: 10px;
     cursor: pointer;
   }
@@ -153,13 +388,14 @@
     float: left;
   }
   .day {
-    position: relative;
     background-color: #f4f4f4;
+    position: relative;
     min-height: 80px;
+    width: 100%;
     border-bottom: 1px solid #ddd;
     padding-top: 18px;
-    padding-bottom: 25px;
-    padding-left: 18px;
+    cursor: pointer;
+    user-select: none;
   }
   .day:after {
     clear: both;
@@ -178,7 +414,7 @@
     border-bottom: 1px solid #ddd;
   }
   .size {
-    width: 245px;
+    width: 230px;
   }
   .custom_container {
     padding: 20px 0;
@@ -191,5 +427,6 @@
     position: relative;
     background-color: #fff;
     border: 1px solid #aaa;
+    overflow: hidden;
   }
 </style>
