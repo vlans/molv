@@ -8,6 +8,7 @@ import Pagination from '@/common/pagination'
 import Custom from '@/components/custom'
 import Silkbag from '@/components/silkbag/silkbag'
 
+
 Vue.use(Router)
 
 export default new Router({

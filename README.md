@@ -1,7 +1,6 @@
 # molv
-<<<<<<< HEAD
+
 shop molv
-=======
 
 > A Vue.js project
 
@@ -22,4 +21,4 @@ npm run build --report
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
->>>>>>> 3989c90e1ed8bdd26098470b1dcc591d1e6c92a6
+
