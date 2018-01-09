@@ -17,7 +17,7 @@
         <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="date" format="yyyy-MM-dd" class="size" placeholder="请选择出发时间"></DatePicker>
       </p>
       <div class="scroll">
-        <div class="day" v-for="(item, k) in day" @click="changeDay(k)">
+        <div class="day" v-for="(item, k) in day" @click.stop="changeDay(k)">
           <h3 class="day_txt">
             D{{ k + 1 }}
           </h3>
@@ -44,7 +44,7 @@
               </p>
             </div>
           </div>
-          <Icon v-if="day.length > 1" @click.native.stop="deleteDay(index)" type="trash-a" class="delete_icon" size="26" color="#ed3f14"></Icon>
+          <Icon v-if="day.length > 1" @click.native.stop="deleteDay(k)" type="trash-a" class="delete_icon" size="26" color="#ed3f14"></Icon>
         </div>
       </div>
       <Button @click="createDay" long size="large" class="day_add">添加新的一天</Button>
@@ -75,7 +75,7 @@
           <span class="required">*</span>
           目的地
         </span>
-        <Cascader class="address_cascader" change-on-select v-model="day[index].destination" :data="addressData" filterable></Cascader>
+        <Cascader class="address_cascader" @on-change="changeDestination" change-on-select v-model="day[index].destination" :data="addressData" filterable></Cascader>
       </p>
       <div class="basic passing">
         <span class="label">
@@ -89,7 +89,15 @@
         </p>
       </div>
       <div class="scenic_list">
-        <Timeline>
+        <div class="none_bc" v-if="true">
+          本日还未安排路程
+          <br>
+          <br>
+          <br>
+          <br>
+          <br>
+        </div>
+        <Timeline v-else>
           <TimelineItem color="green" v-for="(item, v) in day[index].trip" :key="v">
             <Icon type="location" slot="dot" size="28"></Icon>
             <div style="margin-top: -6px;">
@@ -130,6 +138,11 @@
   export default {
     name: 'custom',
     methods: {
+      changeDestination (v, s) {
+        if (this.index + 1 < this.day.length) {
+          this.day[this.index + 1].departure = v
+        }
+      },
       changeDay (k) {
         this.index = k
       },
@@ -159,7 +172,7 @@
           {
             formatTime: formatTime,
             date: '',
-            departure: [],
+            departure: this.day[this.day.length - 1].destination,
             destination: [],
             passing: [
               {
@@ -182,9 +195,10 @@
         )
       },
       deleteDay (index) {
+        if (index !== 0) {
+          this.index = index - 1
+        }
         this.day.splice(index, 1)
-        this.index = index - 1
-        console.log('删除成功')
         this.resetTime('delete')
       },
       format () {
@@ -195,12 +209,14 @@
         this.resetTime('change')
       },
       resetTime (flag) {
+        console.log(4343434)
         this.day.forEach((v, i) => {
           if (flag === 'change') {
             if (i !== 0) {
               v.formatTime = moment(this.day[0].formatTime).add(i, 'd').format('YYYY-MM-DD')
             }
           } else {
+            console.log(3232323232323, v)
             v.formatTime = moment(this.time).add(i, 'd').format('YYYY-MM-DD')
           }
         })
@@ -280,6 +296,11 @@
 </script>
 
 <style>
+  .none_bc {
+    padding-top: 80px;
+    text-align: center;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACcAAABQCAYAAACahGxMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3BpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNS1jMDE0IDc5LjE1MTQ4MSwgMjAxMy8wMy8xMy0xMjowOToxNSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo5YmY0YWI5YS03YzcwLTQ5MzItYTMxNS0wOTA0ZTU0YTc4NDciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzUwM0IyNjRGMTJDMTFFNEE4MUY5RUU1QjRBOURCODYiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzUwM0IyNjNGMTJDMTFFNEE4MUY5RUU1QjRBOURCODYiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTQgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4RjIxQTkyOEYxMjgxMUU0QTgxRjlFRTVCNEE5REI4NiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4RjM1MTkwNEYxMjgxMUU0QTgxRjlFRTVCNEE5REI4NiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PtNyejQAAAEYSURBVHja7NU/a8JwEMbx+/lnaN5AIGvBvABfkB1aOvoSfBUObu0LcjbWztnMlJCCQ7wTXYpIKYSc5ntwcJwZPuR8SMiybCEir9pD8VPrIPIy0uFNeyC+aqo9HziEXWrmFWY19owT17iRpkImaeoO9rXdCmf991l/L/I87wyTJMlt3LWHLui293d1VnD9SOutxLa9/xOOtBII0kpaSSs40kpa+c+B619aryWpy7MemqZxdc6z52C4rCgK8QI0R7Hf27ixs05+6lq+dzsXwBCCRFFk47PhPnTxHsfx6QcPb66qKhs/Dbcsy7LRnun85OCytcG0V8FbGPhCgAMHDhw4cODAgQMHDhw4cODAgQMHDhw4cA+DOwowAAvXsbqD8qM8AAAAAElFTkSuQmCC") no-repeat center 20px;
+  }
   .delete_pass {
     position: absolute;
     right: 20px;
@@ -318,7 +339,9 @@
     font-size: 14px;
   }
   .scenic_list {
+    height: calc(100% - 531px);
     padding: 15px;
+    overflow: auto;
   }
   .distance {
     margin: 6px 0;
