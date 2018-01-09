@@ -57,10 +57,10 @@
           {{day[index].formatTime}}
         </span>
         <p class="distance">
-          总共路程 <span class="light_txt">{{day[index].distance}}公里</span>，预计骑行 <span class="light_txt">{{day[index].rideTime}}小时</span>
+          总共路程 <span class="light_txt">{{day[index].distance ? day[index].distance + '公里' : '0公里'}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime ? day[index].rideTime + '小时' : '0小时'}}</span>
         </p>
         <p class="distance_time">
-          总共游玩 <span class="light_txt">{{day[index].sceniCount}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime}}</span>
+          总共游玩 <span class="light_txt">{{day[index].sceniCount ? day[index].sceniCount + '个' : '0个'}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime ? day[index].playTime + '小时' : '0小时'}}</span>
         </p>
       </div>
       <p class="basic">
@@ -68,7 +68,7 @@
           <span class="required">*</span>
           出发地
         </span>
-        <Cascader class="address_cascader" @change="changeDeparture" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
+        <Cascader class="address_cascader" @on-change="changeDeparture" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
       </p>
       <p class="basic">
         <span class="label">
@@ -84,7 +84,7 @@
         </span>
         <Button type="warning" size="small" class="add_passing" @click="addPassing(day[index].passing)">添加途经地</Button>
         <p v-for="(item, v) in day[index].passing" style="position: relative;">
-          <Cascader change-on-select class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
+          <Cascader change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
       </div>
@@ -146,8 +146,9 @@
       this.initMap()
     },
     methods: {
-      initMap () {
+      async initMap () {
         var _this = this
+        await this.$nextTick()
         var map = new window.BMap.Map('map')
         map.centerAndZoom(new window.BMap.Point(116.404, 39.915), 11)
         map.enableScrollWheelZoom(true)
@@ -156,11 +157,12 @@
         this.driving = new window.BMap.DrivingRoute(map, {
           renderOptions: {map: map, autoViewport: true},
           onSearchComplete (ret) {
+            _this.changeMap = false
+            console.log('search进来了，不好意思', ret)
             if (ret && ret.taxiFare) {
               _this.day[_this.index].distance = (ret.taxiFare.distance / 1000).toFixed(1)
               _this.day[_this.index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
             }
-            _this.changeMap = false
           },
           onPolylinesSet (ret) {
             ret.forEach((v, i) => {
@@ -169,26 +171,47 @@
             })
           }
         })
-        // this.driving.search(this.day[this.index].departure.join(''), this.day[this.index].destination.join(''), {waypoints: this.passing})
-      },
-      searchDriving () {
-        this.changeMap = true
-        this.driving.search(this.day[this.index].departure.join(''), this.day[this.index].destination.join(''), {waypoints: this.passing})
+        var departure = this.day[this.index].departure.length === 2 ? this.day[this.index].departure.join('') + '政府' : this.day[this.index].departure.join('')
+        var destination = this.day[this.index].destination.length === 2 ? this.day[this.index].destination.join('') + '政府' : this.day[this.index].destination.join('')
+        this.driving.search(departure, destination, {waypoints: this.passing})
       },
       changeDeparture (v, s) {
-        v.length > 1 && this.day[this.index].destination.length > 0 && this.searchDriving()
+        v.length > 1 && this.day[this.index].destination.length > 1 && (this.changeMap = true) && this.initMap()
+        this.day[this.index].changeDepar = true
       },
       changeDestination (v, s) {
         if (this.index + 1 < this.day.length) {
-          this.day[this.index + 1].departure = v
+          if (!this.day[this.index + 1].changeDepar) {
+            this.day[this.index + 1].departure = v
+          }
         }
-        v.length > 1 && this.day[this.index].departure.length > 0 && this.searchDriving()
+        v.length > 1 && this.day[this.index].departure.length > 1 && (this.changeMap = true) && this.initMap()
+      },
+      async changePass (v, s) {
+        await this.$nextTick()
+        this.passing = []
+        this.day[this.index].passing.forEach((n, i) => {
+          console.log(n, 1)
+          if (n.address.length > 1 && n.address.length < 3) {
+            console.log(n, 2)
+            if (n.address.length === 2) {
+              this.passing.push(n.address.join('') + '政府')
+            } else {
+              this.passing.push(n.address.join(''))
+            }
+          }
+        })
+        console.log(this.passing, 4444)
+        v.length > 1 && this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && (this.changeMap = true) && this.initMap()
       },
       changeDay (k) {
         this.index = k
+        this.changeMap = true
+        this.initMap()
       },
       deletePassConfrim () {
         this.passArray.splice(this.i, 1)
+        this.changePass()
       },
       deletePass (passArray, i, passValue) {
         if (passValue.length) {
@@ -213,6 +236,7 @@
           {
             formatTime: formatTime,
             date: '',
+            changeDepar: false,
             departure: this.day[this.day.length - 1].destination,
             destination: [],
             passing: [
@@ -240,6 +264,7 @@
           this.index = index - 1
         }
         this.day.splice(index, 1)
+        this.initMap()
         this.resetTime('delete')
       },
       format () {
@@ -315,6 +340,42 @@
                     label: '王府井百货'
                   }
                 ]
+              },
+              {
+                value: '丰台区',
+                label: '丰台区',
+                children: [
+                  {
+                    value: '欢乐谷',
+                    label: '欢乐谷'
+                  },
+                  {
+                    value: '西单大悦城',
+                    label: '西单大悦城'
+                  },
+                  {
+                    value: '王府井百货',
+                    label: '王府井百货'
+                  }
+                ]
+              },
+              {
+                value: '海淀区',
+                label: '海淀区',
+                children: [
+                  {
+                    value: '欢乐谷',
+                    label: '欢乐谷'
+                  },
+                  {
+                    value: '西单大悦城',
+                    label: '西单大悦城'
+                  },
+                  {
+                    value: '王府井百货',
+                    label: '王府井百货'
+                  }
+                ]
               }
             ]
           }
@@ -326,6 +387,7 @@
           {
             formatTime: '',
             date: '',
+            changeDepar: false,
             departure: [],
             destination: [],
             passing: [
