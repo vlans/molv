@@ -57,7 +57,7 @@
           {{day[index].formatTime}}
         </span>
         <p class="distance">
-          总共路程 <span class="light_txt">{{day[index].distance}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime}}</span>
+          总共路程 <span class="light_txt">{{day[index].distance}}公里</span>，预计骑行 <span class="light_txt">{{day[index].rideTime}}小时</span>
         </p>
         <p class="distance_time">
           总共游玩 <span class="light_txt">{{day[index].sceniCount}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime}}</span>
@@ -68,7 +68,7 @@
           <span class="required">*</span>
           出发地
         </span>
-        <Cascader class="address_cascader" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
+        <Cascader class="address_cascader" @change="changeDeparture" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
       </p>
       <p class="basic">
         <span class="label">
@@ -128,7 +128,12 @@
     </div>
     </Col>
     <Col span="12">
-    <div class="col">地图和景点</div>
+      <div class="col">
+        <div id="map"></div>
+        <div class="scenicList"></div>
+        <Spin fix size="large" v-if="changeMap">
+        </Spin>
+      </div>
     </Col>
   </Row>
 </template>
@@ -137,11 +142,47 @@
   import moment from 'moment'
   export default {
     name: 'custom',
+    mounted () {
+      this.initMap()
+    },
     methods: {
+      initMap () {
+        var _this = this
+        var map = new window.BMap.Map('map')
+        map.centerAndZoom(new window.BMap.Point(116.404, 39.915), 11)
+        map.enableScrollWheelZoom(true)
+        // var p1 = new window.BMap.Point(116.301934, 39.977552)
+        // var p2 = new window.BMap.Point(116.508328, 39.919141)
+        this.driving = new window.BMap.DrivingRoute(map, {
+          renderOptions: {map: map, autoViewport: true},
+          onSearchComplete (ret) {
+            if (ret && ret.taxiFare) {
+              _this.day[_this.index].distance = (ret.taxiFare.distance / 1000).toFixed(1)
+              _this.day[_this.index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
+            }
+            _this.changeMap = false
+          },
+          onPolylinesSet (ret) {
+            ret.forEach((v, i) => {
+              v.getPolyline().setStrokeColor('#3f9b1d')
+              v.getPolyline().setStrokeOpacity(0.7)
+            })
+          }
+        })
+        // this.driving.search(this.day[this.index].departure.join(''), this.day[this.index].destination.join(''), {waypoints: this.passing})
+      },
+      searchDriving () {
+        this.changeMap = true
+        this.driving.search(this.day[this.index].departure.join(''), this.day[this.index].destination.join(''), {waypoints: this.passing})
+      },
+      changeDeparture (v, s) {
+        v.length > 1 && this.day[this.index].destination.length > 0 && this.searchDriving()
+      },
       changeDestination (v, s) {
         if (this.index + 1 < this.day.length) {
           this.day[this.index + 1].departure = v
         }
+        v.length > 1 && this.day[this.index].departure.length > 0 && this.searchDriving()
       },
       changeDay (k) {
         this.index = k
@@ -227,6 +268,9 @@
     },
     data () {
       return {
+        changeMap: false,
+        passing: [],
+        driving: '',
         i: 0,
         passArray: [],
         deletePassTxt: '',
@@ -236,6 +280,24 @@
             value: '北京市',
             label: '北京市',
             children: [
+              {
+                value: '大兴区',
+                label: '大兴区',
+                children: [
+                  {
+                    value: '欢乐谷',
+                    label: '欢乐谷'
+                  },
+                  {
+                    value: '西单大悦城',
+                    label: '西单大悦城'
+                  },
+                  {
+                    value: '王府井百货',
+                    label: '王府井百货'
+                  }
+                ]
+              },
               {
                 value: '朝阳区',
                 label: '朝阳区',
@@ -296,6 +358,14 @@
 </script>
 
 <style>
+  .ivu-spin-dot {
+    background-color: #f90!important;
+    width: 40px!important;
+    height: 40px!important;
+  }
+  #map {
+    height: 100%;
+  }
   .none_bc {
     padding-top: 80px;
     text-align: center;
