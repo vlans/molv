@@ -6,8 +6,6 @@ import Success from '@/components/order/success'
 import Order from '@/components/order/order'
 import Pagination from '@/common/pagination'
 import Custom from '@/components/custom'
-import Silkbag from '@/components/silkbag/silkbag'
-
 
 Vue.use(Router)
 
@@ -42,11 +40,6 @@ export default new Router({
       path: '/custom',
       name: 'custom',
       component: Custom
-    },
-    {
-      path: '/silkbag',
-      name: 'silkbag',
-      component: Silkbag
     }
   ]
 })
