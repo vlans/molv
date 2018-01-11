@@ -52,7 +52,8 @@
     </Col>
     <Col span="6">
     <div class="col">
-      <div class="basic">
+      <div class="basic_scoll">
+        <div class="basic">
         <span class="label">
           {{day[index].formatTime}}
         </span>
@@ -89,13 +90,9 @@
         </p>
       </div>
       <div class="scenic_list">
-        <div class="none_bc" v-if="true">
+        <Spin fix size="large" v-if="changeDistance"></Spin>
+        <div class="none_bc" v-if="false">
           本日还未安排路程
-          <br>
-          <br>
-          <br>
-          <br>
-          <br>
         </div>
         <Timeline v-else>
           <TimelineItem color="green" v-for="(item, v) in day[index].trip" :key="v">
@@ -103,16 +100,17 @@
             <div style="margin-top: -6px;">
               <h2 class="scenic_title">{{item.scenicName}}
                 <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime}}</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
               </h2>
             </div>
             <div class="content_txt">
               <Icon type="android-bicycle" size="30" class="riding_icon"></Icon>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance}}</span>
+                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
                 <span>，预计骑行</span>
-                <span class="light_txt">{{item.rideTime}}</span>
+                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
               </p>
+              
             </div>
           </TimelineItem>
         </Timeline>
@@ -124,6 +122,7 @@
           @on-ok="deletePassConfrim">
           <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
         </Modal>
+      </div>
       </div>
     </div>
     </Col>
@@ -145,9 +144,33 @@
     mounted () {
       this.initMap()
     },
+    watch: {
+      day: {
+        deep: true,
+        handler (v) {
+          if (v) {
+            window.localStorage.setItem('metadata', JSON.stringify(v))
+          }
+        }
+      }
+    },
     methods: {
+      initMetadata () {
+        var data = window.localStorage.getItem('metadata')
+        try {
+          data = JSON.parse(data)
+        } catch (e) {
+          return
+        }
+        if (data === null) {
+          return
+        }
+        this.day = data
+        this.changePass()
+      },
       async initMap () {
         var _this = this
+        this.initMetadata()
         await this.$nextTick()
         var map = new window.BMap.Map('map')
         map.centerAndZoom(new window.BMap.Point(116.404, 39.915), 11)
@@ -175,16 +198,15 @@
         var destination = this.day[this.index].destination.length === 2 ? this.day[this.index].destination.join('') + '政府' : this.day[this.index].destination.join('')
         this.driving.search(departure, destination, {waypoints: this.passing})
       },
-      changeDeparture (v, s) {
+      async changeDeparture (v, s) {
+        await this.$nextTick()
         v.length > 1 && this.day[this.index].destination.length > 1 && (this.changeMap = true) && this.initMap()
-        this.day[this.index].changeDepar = true
       },
-      changeDestination (v, s) {
+      async changeDestination (v, s) {
         if (this.index + 1 < this.day.length) {
-          if (!this.day[this.index + 1].changeDepar) {
-            this.day[this.index + 1].departure = v
-          }
+          this.day[this.index + 1].departure = v
         }
+        await this.$nextTick()
         v.length > 1 && this.day[this.index].departure.length > 1 && (this.changeMap = true) && this.initMap()
       },
       async changePass (v, s) {
@@ -236,7 +258,6 @@
           {
             formatTime: formatTime,
             date: '',
-            changeDepar: false,
             departure: this.day[this.day.length - 1].destination,
             destination: [],
             passing: [
@@ -264,6 +285,7 @@
           this.index = index - 1
         }
         this.day.splice(index, 1)
+        this.day[index].departure = this.day[index - 1].destination
         this.initMap()
         this.resetTime('delete')
       },
@@ -294,6 +316,7 @@
     data () {
       return {
         changeMap: false,
+        changeDistance: false,
         passing: [],
         driving: '',
         i: 0,
@@ -387,7 +410,6 @@
           {
             formatTime: '',
             date: '',
-            changeDepar: false,
             departure: [],
             destination: [],
             passing: [
@@ -401,10 +423,16 @@
             playTime: '',
             trip: [
               {
-                scenicName: '',
-                playTime: '',
-                rideTime: '',
-                rideDistance: ''
+                scenicName: '潘家园',
+                playTime: '10',
+                rideTime: '30',
+                rideDistance: '123'
+              },
+              {
+                scenicName: '角门西',
+                playTime: '20',
+                rideTime: '40',
+                rideDistance: '11'
               }
             ]
           }
@@ -420,6 +448,10 @@
 </script>
 
 <style>
+  .basic_scoll {
+    height: 100%;
+    overflow: auto;
+  }
   .ivu-spin-dot {
     background-color: #f90!important;
     width: 40px!important;
@@ -471,9 +503,8 @@
     font-size: 14px;
   }
   .scenic_list {
-    height: calc(100% - 531px);
     padding: 15px;
-    overflow: auto;
+    position: relative;
   }
   .distance {
     margin: 6px 0;
@@ -486,8 +517,6 @@
   }
   .passing {
     position: relative;
-    height: 240px;
-    overflow: auto;
   }
   .add_passing {
     position: absolute;
