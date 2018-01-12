@@ -110,7 +110,7 @@
                 <span>，预计骑行</span>
                 <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
               </p>
-              
+
             </div>
           </TimelineItem>
         </Timeline>
@@ -139,6 +139,7 @@
 
 <script>
   import moment from 'moment'
+  import areaJSON from '../common/area'
   export default {
     name: 'custom',
     mounted () {
@@ -194,41 +195,48 @@
             })
           }
         })
-        var departure = this.day[this.index].departure.length === 2 ? this.day[this.index].departure.join('') + '政府' : this.day[this.index].departure.join('')
-        var destination = this.day[this.index].destination.length === 2 ? this.day[this.index].destination.join('') + '政府' : this.day[this.index].destination.join('')
-        this.driving.search(departure, destination, {waypoints: this.passing})
+        var departure = ''
+        var destination = ''
+        this.day[this.index].departure.length > 1 && this.myGeo.getPoint(this.day[this.index].departure.join(''), (point) => {
+          if (point) {
+            departure = new BMap.Point(point.lng, point.lat)
+            departure && destination && (this.changeMap = true) && this.driving.search(departure, destination, {waypoints: this.passing})
+          }
+        })
+        this.day[this.index].destination.length > 1 && this.myGeo.getPoint(this.day[this.index].destination.join(''), (point) => {
+          if (point) {
+            destination = new BMap.Point(point.lng, point.lat)
+            departure && destination && (this.changeMap = true) && this.driving.search(departure, destination, {waypoints: this.passing})
+          }
+        })
       },
       async changeDeparture (v, s) {
         await this.$nextTick()
-        v.length > 1 && this.day[this.index].destination.length > 1 && (this.changeMap = true) && this.initMap()
+        v.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
       },
       async changeDestination (v, s) {
         if (this.index + 1 < this.day.length) {
           this.day[this.index + 1].departure = v
         }
         await this.$nextTick()
-        v.length > 1 && this.day[this.index].departure.length > 1 && (this.changeMap = true) && this.initMap()
+        v.length > 1 && this.day[this.index].departure.length > 1 && this.initMap()
       },
       async changePass (v, s) {
         await this.$nextTick()
         this.passing = []
         this.day[this.index].passing.forEach((n, i) => {
-          console.log(n, 1)
-          if (n.address.length > 1 && n.address.length < 3) {
-            console.log(n, 2)
-            if (n.address.length === 2) {
-              this.passing.push(n.address.join('') + '政府')
-            } else {
-              this.passing.push(n.address.join(''))
-            }
+          if (n.address.length > 1) {
+            this.myGeo.getPoint(n.address.join(''), (point) => {
+              if (point) {
+                this.passing.push(new BMap.Point(point.lng, point.lat))
+              }
+            })
           }
         })
-        console.log(this.passing, 4444)
-        v.length > 1 && this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && (this.changeMap = true) && this.initMap()
+        this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
       },
       changeDay (k) {
         this.index = k
-        this.changeMap = true
         this.initMap()
       },
       deletePassConfrim () {
@@ -297,14 +305,12 @@
         this.resetTime('change')
       },
       resetTime (flag) {
-        console.log(4343434)
         this.day.forEach((v, i) => {
           if (flag === 'change') {
             if (i !== 0) {
               v.formatTime = moment(this.day[0].formatTime).add(i, 'd').format('YYYY-MM-DD')
             }
           } else {
-            console.log(3232323232323, v)
             v.formatTime = moment(this.time).add(i, 'd').format('YYYY-MM-DD')
           }
         })
@@ -315,6 +321,7 @@
     },
     data () {
       return {
+        myGeo: new window.BMap.Geocoder(),
         changeMap: false,
         changeDistance: false,
         passing: [],
@@ -323,86 +330,7 @@
         passArray: [],
         deletePassTxt: '',
         deleteModel: false,
-        addressData: [
-          {
-            value: '北京市',
-            label: '北京市',
-            children: [
-              {
-                value: '大兴区',
-                label: '大兴区',
-                children: [
-                  {
-                    value: '欢乐谷',
-                    label: '欢乐谷'
-                  },
-                  {
-                    value: '西单大悦城',
-                    label: '西单大悦城'
-                  },
-                  {
-                    value: '王府井百货',
-                    label: '王府井百货'
-                  }
-                ]
-              },
-              {
-                value: '朝阳区',
-                label: '朝阳区',
-                children: [
-                  {
-                    value: '欢乐谷',
-                    label: '欢乐谷'
-                  },
-                  {
-                    value: '西单大悦城',
-                    label: '西单大悦城'
-                  },
-                  {
-                    value: '王府井百货',
-                    label: '王府井百货'
-                  }
-                ]
-              },
-              {
-                value: '丰台区',
-                label: '丰台区',
-                children: [
-                  {
-                    value: '欢乐谷',
-                    label: '欢乐谷'
-                  },
-                  {
-                    value: '西单大悦城',
-                    label: '西单大悦城'
-                  },
-                  {
-                    value: '王府井百货',
-                    label: '王府井百货'
-                  }
-                ]
-              },
-              {
-                value: '海淀区',
-                label: '海淀区',
-                children: [
-                  {
-                    value: '欢乐谷',
-                    label: '欢乐谷'
-                  },
-                  {
-                    value: '西单大悦城',
-                    label: '西单大悦城'
-                  },
-                  {
-                    value: '王府井百货',
-                    label: '王府井百货'
-                  }
-                ]
-              }
-            ]
-          }
-        ],
+        addressData: areaJSON,
         name: '',
         time: new Date(),
         index: 0,
@@ -449,7 +377,7 @@
 
 <style>
   .basic_scoll {
-    height: 100%;
+    height: calc(100% - 303px);
     overflow: auto;
   }
   .ivu-spin-dot {
