@@ -14,7 +14,7 @@
           <span class="required">&nbsp;</span>
           出发时间
         </span>
-        <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="date" format="yyyy-MM-dd" class="size" placeholder="请选择出发时间"></DatePicker>
+        <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="date" format="yyyy-MM-dd" class="size" placeholder="请选择出发时间" :clearable="false"></DatePicker>
       </p>
       <div class="scroll">
         <div class="day" v-for="(item, k) in day" @click.stop="changeDay(k)">
@@ -23,7 +23,7 @@
           </h3>
           <div class="day_address">
             <p class="day_time">
-              {{ item.formatTime }}
+              {{ item.formatTime !== 'Invalid date' ? item.formatTime : ''}}
             </p>
             <div class="day_hi day_departure">
               <span>出发地</span>
@@ -83,15 +83,15 @@
           <span class="required">*</span>
           途经地
         </span>
-        <Button type="warning" size="small" class="add_passing" @click="addPassing(day[index].passing)">添加途经地</Button>
-        <p v-for="(item, v) in day[index].passing" style="position: relative;">
-          <Cascader  placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
+        <Button type="warning" size="small" class="add_passing" @click.stop="addPassing(day[index].passing)">添加途经地</Button>
+        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)">
+          <Cascader placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
       </div>
       <div class="scenic_list">
         <Spin fix size="large" v-if="changeDistance"></Spin>
-        <div class="none_bc" v-if="false">
+        <div class="none_bc" v-if="day[index].startTrip.length || day[index].passTrip.length || day[index].endTrip.length">
           本日还未安排路程
         </div>
         <Timeline v-else>
@@ -157,28 +157,44 @@
           @on-ok="deletePassConfrim">
           <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
         </Modal>
+        <Modal
+          v-model="validatorModel"
+          title="请检查地点信息"
+          >
+          <p>出发地、目的地、途经地需要选择区级或区级以下地点</p>
+        </Modal>
+        <Modal
+          v-model="saveValidatorModel"
+          title="请检查路书信息"
+          >
+          <p>路书名称、出发时间不能为空</p>
+        </Modal>
+        <Modal
+          v-model="saveModel"
+          title="系统提示"
+          >
+          <p>系统繁忙，保存失败，请稍后再试</p>
+        </Modal>
       </div>
-        <Button @click="createScenic" long size="large" class="day_add" type="warning">添加景点</Button>
+        <Button @click="createScenic" long size="large" class="day_add" type="warning">{{day[index].btnTxt}}</Button>
       </div>
     </div>
     </Col>
-    <Col span="12" v-if="showMap">
+    <Col span="12" v-show="day[index].showMap">
       <div class="col">
         <div id="map"></div>
         <Spin fix size="large" v-if="changeMap">
         </Spin>
       </div>
     </Col>
-    <Col span="12" v-if="!showMap">
+    <Col span="12" v-show="!day[index].showMap">
       <div class="col" style="padding: 10px;">
-        <Input v-model="search" placeholder="请输入要查询的景点">
-          <Select v-model="scenicSelect" slot="prepend" style="width: 80px">
-            <Option value="day">Day</Option>
-            <Option value="month">Month</Option>
-          </Select>
-          <Button slot="append" icon="ios-search" type="warning"></Button>
-        </Input>
-        <Row :gutter="16" style="margin-top: 15px;">
+        <Cascader v-model="day[index].serachScenic" :data="day[index].concatMerge" filterable style="float: left; padding-left: 5px;"></Cascader>
+        <div style="float: left;width: calc(100% - 155px); padding-left: 10px;">
+          <Input v-model="search" placeholder="请输入要查询的景点" style="float: left; width: 90%;"/>
+          <Button icon="ios-search" type="warning" style="float: left; width: 8%; margin-left: 2%;"></Button>
+        </div>
+        <Row :gutter="16" style="margin-top: 45px;">
           <Col style="margin-bottom: 10px;" span="8" v-for="(item, v) in scenicList" :key="v">
             <Card>
               <p slot="title">
@@ -196,16 +212,21 @@
             </Card>
           </Col>
         </Row>
+        <Spin fix size="large" v-if="false">
+        </Spin>
       </div>
+      <div id="adpter"></div>
     </Col>
   </Row>
 </template>
 
 <script>
+  const R = require('ramda')
   import moment from 'moment'
   import areaJSON from '../common/area'
   export default {
     name: 'custom',
+    props: ['useFlag'],
     watch: {
       day: {
         deep: true,
@@ -214,14 +235,237 @@
             window.localStorage.setItem('metadata', JSON.stringify(v))
           }
         }
+      },
+      name (v) {
+        if (v) {
+          window.localStorage.setItem('roadBook', v)
+        }
+      },
+      useFlag (v) {
+        var flag = this.saveValidator()
+        if (flag) {
+          return
+        }
+        this.saveJson()
       }
     },
     methods: {
-      addScenic () {
-        console.log(33323)
+      async saveJson () {
+        var sdata = {
+          userId: "2",
+          title: this.name,
+          line: "潘家园 > 十里河",
+          image: "222",
+          miles: "",
+          day: this.day.length,
+          start_at: moment(this.time).format('X'),
+          journeysId: "",
+          journeys_details: [],
+          journeys_cities: []
+        }
+        var index = 0
+        var map = new window.BMap.Map('adpter')
+        var driving = new window.BMap.DrivingRoute(map, {
+          renderOptions: {map: map, autoViewport: true},
+          onSearchComplete (ret) {
+            if (ret && ret.taxiFare) {
+              sdata.journeys_details[index].miles = String((ret.taxiFare.distance / 1000).toFixed(1))
+            }
+          }
+        })
+        var miles = 0
+        this.day.forEach((v, k) => {
+          var trip = []
+          miles += Number(v.distance)
+          trip = v.startTrip.concat(v.passTrip).concat(v.endTrip)
+          trip.forEach((n, i) => {
+            index = i
+            if (i === 0) {
+              sdata.journeys_details[index] = {
+                day: String(k + 1),
+                hour: "",
+                sort: "1",
+                destination_id: n.id
+              }
+              driving.search(this.day[k].startDeparture, n.scenicName)
+            } else {
+              sdata.journeys_details[index] = {
+                day: String(k + 1),
+                hour: "",
+                sort: String(i),
+                destination_id: n.id
+              }
+              driving.search(trip[i - 1].scenicName, trip[i].scenicName) 
+            }
+          })
+          sdata.journeys_cities.push(
+            {
+              day: String(k + 1),
+              address_id: v.startId,
+              type: "1"
+            },
+            {
+              day: String(k + 1),
+              address_id: v.endId,
+              type: "3"
+            }
+          )
+          v.passId.forEach((n, i) => {
+            sdata.journeys_cities.push(
+              {
+                day: String(k + 1),
+                address_id: n,
+                type: "2"
+              }
+            )
+          })
+        })
+        var journeys_cities = JSON.stringify(sdata.journeys_cities)
+        var journeys_details = JSON.stringify(sdata.journeys_details)
+        var json = JSON.stringify(this.day)
+        sdata.journeys_cities = journeys_cities
+        sdata.journeys_details = journeys_details
+        sdata.miles = String(miles)
+        sdata.json = json
+        await this.$nextTick()
+        var { errorCode } = await this.$http(
+          {
+            dataType: 'json',
+            type: 'post',
+            url: 'http://120.79.33.51:8080/motortrip/api/journeys/addJourneysPc',
+            data: sdata
+          }
+        )
+        map = null
+        driving = null
+        if (errorCode !== 0) {
+          this.saveModel = true
+          return true
+        }
+        console.log(33333)
       },
-      createScenic () {
-        this.showMap = false
+      saveValidator () {
+        var flag = false
+        if (!this.name) {
+          flag = true
+        } else {
+          if (!flag) {
+            flag = false
+          }
+        }
+        if (!this.time || !this.time.length) {
+          flag = true
+        } else {
+          if (!flag) {
+            flag = false
+          }
+        }
+        if (flag) {
+          this.saveValidatorModel = true
+          return true
+        }
+        this.validator()
+      },
+      validator () {
+        var flag = false
+        var day = this.day[this.index]
+        if (day.departure.length < 2) {
+          flag = true
+        } else {
+          if (!flag) {
+            flag = false
+          }
+        }
+        if (day.destination.length < 2) {
+          flag = true
+        } else {
+          if (!flag) {
+            flag = false
+          }
+        }
+        if (day.passing.length > 1 && day.passing[0].address.length > 1) {
+          day.passing.forEach(v => {
+            if (v.address.length < 2) {
+              flag = true
+            } else {
+              if (!flag) {
+                flag = false
+              }
+            }
+          })
+        }
+        return flag
+      },
+      addScenic () {
+      },
+      createScenic (v) {
+        var flag = this.validator()
+        if (flag) {
+          this.validatorModel = true
+          return
+        }
+        if (this.day[this.index].btnTxt === '添加景点') {
+          this.changeScenic = true
+          this.day[this.index].btnTxt = '返回地图'
+        } else {
+          this.day[this.index].btnTxt = '添加景点'
+          this.day[this.index].showMap = true
+          this.initMap()
+          return
+        }
+        this.day[this.index].showMap = false
+        var day = this.day[this.index]
+        this.concatScenic()
+      },
+      filterScenic () {
+        var day = this.day[this.index]
+        var drop = new Set(day.startScenic.concat(day.passScenic).concat(day.endScenic))
+        return drop
+      },
+      async concatScenic () {
+        await this.$nextTick()
+        var day = this.day[this.index]
+        day.concatMerge = []
+        var concatMerge = []
+        var difference = R.difference(day.concatStart, day.concatEnd)
+        if (difference.length) {
+          var concat = R.concat(day.concatStart, day.concatEnd)
+          var flatten = R.flatten(day.concatPass)
+          if (flatten && flatten.length) {
+            var passDifference = R.difference(flatten, concat)
+            concatMerge = R.concat(concat, passDifference)
+          } else {
+            concatMerge = concat
+          }
+        } else {
+          var flatten = R.flatten(day.concatPass)
+          if (flatten && flatten.length) {
+            var passDifference = R.difference(flatten, day.concatStart)
+            concatMerge = R.concat(day.concatStart, passDifference)
+          } else {
+            concatMerge = day.concatStart
+          }
+        }
+        var concatScenic = this.filterScenic()
+        var scenicArr = []
+        var index = 0
+        for (let i of concatScenic) {
+          var children = []
+          concatMerge.forEach((n, k) => {
+            if (i === n.label) {
+              scenicArr[index] = {
+                label: n.label,
+                value: n.value,
+                id: n.id
+              }
+              children.push(n.children)
+            }
+          })
+          scenicArr[index].children = R.flatten(children)
+          index++
+        }
+        day.concatMerge = scenicArr
+        day.serachScenic = day.departure.slice(0, 2)
       },
       initMetadata () {
         var data = window.localStorage.getItem('metadata')
@@ -241,8 +485,6 @@
         var map = new window.BMap.Map('map')
         map.centerAndZoom(new window.BMap.Point(116.404, 39.915), 11)
         map.enableScrollWheelZoom(true)
-        // var p1 = new window.BMap.Point(116.301934, 39.977552)
-        // var p2 = new window.BMap.Point(116.508328, 39.919141)
         this.driving = new window.BMap.DrivingRoute(map, {
           renderOptions: {map: map, autoViewport: true},
           onSearchComplete (ret) {
@@ -260,11 +502,13 @@
             })
           }
         })
+        this.day[this.index].startDeparture = ''
         var departure = ''
         var destination = ''
         this.day[this.index].departure.length > 1 && this.myGeo.getPoint(this.day[this.index].departure.join(''), (point) => {
           if (point) {
             departure = new BMap.Point(point.lng, point.lat)
+            this.day[this.index].startDeparture = departure
             departure && destination && (this.changeMap = true) && this.driving.search(departure, destination, {waypoints: this.passing})
           }
         })
@@ -278,70 +522,87 @@
       },
       async changeDeparture (v, s) {
         await this.$nextTick()
-        var id = ''
-        var area = []
-        if (v.length > 1) {
-          id = s[1].id
-          area = v.slice(0, 2)
-        }
-        this.day[this.index].startScenic = []
-        this.day[this.index].startScenic.push(
-          {
-            index: 'start',
-            value: id,
-            label: area.join('')
+        if (s) {
+          var start = s[0]
+          if (v.length > 1) {
+            start.children = [s[1]]
+            this.day[this.index].concatStart = [start]
+            this.day[this.index].startId = s[s.length - 1].id
           }
-        )
-        v.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
+          this.day[this.index].startScenic = [v[0]]
+          if (this.day[this.index].showMap) {
+            v.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
+          } else {
+            this.day[this.index].showMap = true
+            this.day[this.index].btnTxt = '添加景点'
+          }
+        }
       },
       async changeDestination (v, s) {
         if (this.index + 1 < this.day.length) {
           this.day[this.index + 1].departure = v
         }
         await this.$nextTick()
-        var id = ''
-        var area = []
-        if (v.length > 1) {
-          id = s[1].id
-          area = v.slice(0, 2)
-        }
-        this.day[this.index].endScenic = []
-        this.day[this.index].endScenic.push(
-          {
-            index: 'end',
-            value: id,
-            label: area.join('')
+        if (s) {
+          var end = s[0]
+          if (v.length > 1) {
+            end.children = [s[1]]
+            this.day[this.index].concatEnd = [end]
+            this.day[this.index].endId = s[s.length - 1].id
           }
-        )
-        v.length > 1 && this.day[this.index].departure.length > 1 && this.initMap()
+          this.day[this.index].endScenic = [v[0]]
+          if (this.day[this.index].showMap) {
+            v.length > 1 && this.day[this.index].departure.length > 1 && this.initMap()
+          } else {
+            this.day[this.index].showMap = true
+            this.day[this.index].btnTxt = '添加景点'
+          }
+        }
+      },
+      flagPassIndex (v) {
+        this.passIndex = v
       },
       async changePass (v, s) {
         await this.$nextTick()
         this.passing = []
+        this.day[this.index].passId = []
+        this.day[this.index].passScenic = []
+        var list = []
         this.day[this.index].passing.forEach((n, i) => {
           if (n.address.length > 1) {
+            if (s) {
+              if (n.pass) {
+                if (!n.pass.children[0]) {
+                  n.pass.children = [s[1]]
+                }
+                list.push([n.pass])
+              } else {
+                n.pass = s[0]
+                n.pass.children = [s[1]]
+                list.push([n.pass])
+              }
+              this.day[this.index].passId.push(s[s.length - 1].id)
+            } else {
+              if (n.pass) {
+                list.push([n.pass])
+              }
+            }
             this.myGeo.getPoint(n.address.join(''), (point) => {
               if (point) {
                 this.passing.push(new BMap.Point(point.lng, point.lat))
               }
             })
+            this.day[this.index].passScenic.push(n.address[0])
           }
         })
-        var id = ''
-        var area = []
-        if (v.length > 1) {
-          id = s[1].id
-          area = v.slice(0, 2)
+        this.day[this.index].concatPass = list
+        if (this.day[this.index].showMap) {
+          this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
+        } else {
+          this.day[this.index].showMap = true
+          this.day[this.index].btnTxt = '添加景点'
         }
-        this.day[this.index].passScenic = []
-        this.day[this.index].passScenic.push(
-          {
-            index: 'pass',
-            value: id,
-            label: area.join('')
-          }
-        )
-        this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
+        list = null
       },
       changeDay (k) {
         this.index = k
@@ -349,7 +610,9 @@
       },
       deletePassConfrim () {
         this.passArray.splice(this.i, 1)
+        this.day[this.index].passing.splice(this.i, 1)
         this.changePass()
+        this.concatScenic()
       },
       deletePass (passArray, i, passValue) {
         if (passValue.length) {
@@ -372,6 +635,17 @@
         var formatTime = moment(this.day[this.day.length - 1].formatTime).add(1, 'd').format('YYYY-MM-DD')
         this.day.push(
           {
+            startId: '',
+            endId: '',
+            passId: [],
+            startDeparture: [],
+            serachScenic: [],
+            btnTxt: '添加景点',
+            showMap: true,
+            concatStart: [],
+            concatEnd: [],
+            concatPass: [],
+            concatMerge: [],
             formatTime: formatTime,
             date: '',
             departure: this.day[this.day.length - 1].destination,
@@ -445,16 +719,24 @@
     },
     created () {
       this.initMetadata()
-      this.initMap()
+      if (this.day[this.index].showMap) {
+        this.initMap()
+      }
       this.changePass()
       this.format()
     },
     data () {
       return {
+        saveModel: false,
+        saveValidatorModel: false,
+        changeScenic: false,
+        validatorModel: false,
+        serachScenic: [],
+        index: 0,
+        passIndex: 0,
         scenicSelect: '',
         search: '',
         scenicList: [1, 2, 3, 4, 5],
-        showMap: true,
         myGeo: new window.BMap.Geocoder(),
         changeMap: false,
         changeDistance: false,
@@ -465,11 +747,23 @@
         deletePassTxt: '',
         deleteModel: false,
         addressData: areaJSON,
-        name: '',
+        name: window.localStorage.getItem('roadBook') || '',
         time: new Date(),
-        index: 0,
+        departure: '',
+        destination: '',
         day: [
           {
+            startId: '',
+            endId: '',
+            passId: [],
+            startDeparture: [],
+            serachScenic: [],
+            btnTxt: '添加景点',
+            showMap: true,
+            concatStart: [],
+            concatEnd: [],
+            concatPass: [],
+            concatMerge: [],
             formatTime: '',
             date: '',
             departure: [],
@@ -583,7 +877,7 @@
   .scenic_list {
     padding: 15px;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 36px;
   }
   .distance {
     margin: 6px 0;

@@ -28,7 +28,7 @@
     .nav(v-if="custom")
       ul(style="position: relative;")
         li.submit
-          Button(type="warning", size="large") 保存
+          Button(type="warning", size="large", @click.native.stop="save") 保存
 </template>
 <script>
   import $ from 'jquery'
@@ -64,6 +64,10 @@
       }
     },
     methods: {
+      save () {
+        this.index = !this.index
+        this.$emit('save', this.index)
+      },
       logout () {
         this.$http(
           {
@@ -111,6 +115,7 @@
     },
     data () {
       return {
+        index: false,
         custom: false,
         flag: false,
         nav: [

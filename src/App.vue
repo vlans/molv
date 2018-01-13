@@ -1,7 +1,7 @@
 <template lang="jade">
   #app
-    nav-bar(:orderActive="active", :userInfo="userInfo", @showModal="showModal")
-    router-view(@orderActive="orderActive", @getUser="getUser")
+    nav-bar(:orderActive="active", :userInfo="userInfo", @showModal="showModal", @save="save")
+    router-view(@orderActive="orderActive", @getUser="getUser", :useFlag="flag")
     foot
     forget(:show="show")
 </template>
@@ -14,6 +14,7 @@
     name: 'app',
     data () {
       return {
+        flag: false,
         active: true,
         userInfo: '',
         indexs: false,
@@ -24,6 +25,9 @@
       this.checkUid()
     },
     methods: {
+      save (v) {
+        this.flag = v
+      },
       getUser (v) {
         this.userInfo = v
       },
