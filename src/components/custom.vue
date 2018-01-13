@@ -47,7 +47,7 @@
           <Icon v-if="day.length > 1" @click.native.stop="deleteDay(k)" type="trash-a" class="delete_icon" size="26" color="#ed3f14"></Icon>
         </div>
       </div>
-      <Button @click="createDay" long size="large" class="day_add">添加新的一天</Button>
+      <Button @click="createDay" long size="large" class="day_add" type="warning">添加新的一天</Button>
     </div>
     </Col>
     <Col span="6">
@@ -69,14 +69,14 @@
           <span class="required">*</span>
           出发地
         </span>
-        <Cascader class="address_cascader" @on-change="changeDeparture" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
+        <Cascader class="address_cascader" placeholder="请选择出发地" @on-change="changeDeparture" change-on-select v-model="day[index].departure" :data="addressData" filterable></Cascader>
       </p>
       <p class="basic">
         <span class="label">
           <span class="required">*</span>
           目的地
         </span>
-        <Cascader class="address_cascader" @on-change="changeDestination" change-on-select v-model="day[index].destination" :data="addressData" filterable></Cascader>
+        <Cascader class="address_cascader" placeholder="请选择目的地" @on-change="changeDestination" change-on-select v-model="day[index].destination" :data="addressData" filterable></Cascader>
       </p>
       <div class="basic passing">
         <span class="label">
@@ -85,7 +85,7 @@
         </span>
         <Button type="warning" size="small" class="add_passing" @click="addPassing(day[index].passing)">添加途经地</Button>
         <p v-for="(item, v) in day[index].passing" style="position: relative;">
-          <Cascader change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
+          <Cascader  placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
       </div>
@@ -95,7 +95,7 @@
           本日还未安排路程
         </div>
         <Timeline v-else>
-          <TimelineItem color="green" v-for="(item, v) in day[index].trip" :key="v">
+          <TimelineItem color="green" v-for="(item, v) in day[index].startTrip" :key="item.id">
             <Icon type="location" slot="dot" size="28"></Icon>
             <div style="margin-top: -6px;">
               <h2 class="scenic_title">{{item.scenicName}}
@@ -113,6 +113,41 @@
 
             </div>
           </TimelineItem>
+          <TimelineItem color="green" v-for="(item, v) in day[index].passTrip" :key="item.id">
+            <Icon type="location" slot="dot" size="28"></Icon>
+            <div style="margin-top: -6px;">
+              <h2 class="scenic_title">{{item.scenicName}}
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+              </h2>
+            </div>
+            <div class="content_txt">
+              <Icon type="android-bicycle" size="30" class="riding_icon"></Icon>
+              <p class="riding_txt">
+                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span>，预计骑行</span>
+                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+              </p>
+
+            </div>
+          </TimelineItem>
+          <TimelineItem color="green" v-for="(item, v) in day[index].endTrip" :key="item.id">
+            <Icon type="location" slot="dot" size="28"></Icon>
+            <div style="margin-top: -6px;">
+              <h2 class="scenic_title">{{item.scenicName}}
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+              </h2>
+            </div>
+            <div class="content_txt">
+              <Icon type="android-bicycle" size="30" class="riding_icon"></Icon>
+              <p class="riding_txt">
+                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span>，预计骑行</span>
+                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+              </p>
+            </div>
+          </TimelineItem>
         </Timeline>
       </div>
       <div>
@@ -123,15 +158,44 @@
           <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
         </Modal>
       </div>
+        <Button @click="createScenic" long size="large" class="day_add" type="warning">添加景点</Button>
       </div>
     </div>
     </Col>
-    <Col span="12">
+    <Col span="12" v-if="showMap">
       <div class="col">
         <div id="map"></div>
-        <div class="scenicList"></div>
         <Spin fix size="large" v-if="changeMap">
         </Spin>
+      </div>
+    </Col>
+    <Col span="12" v-if="!showMap">
+      <div class="col" style="padding: 10px;">
+        <Input v-model="search" placeholder="请输入要查询的景点">
+          <Select v-model="scenicSelect" slot="prepend" style="width: 80px">
+            <Option value="day">Day</Option>
+            <Option value="month">Month</Option>
+          </Select>
+          <Button slot="append" icon="ios-search" type="warning"></Button>
+        </Input>
+        <Row :gutter="16" style="margin-top: 15px;">
+          <Col style="margin-bottom: 10px;" span="8" v-for="(item, v) in scenicList" :key="v">
+            <Card>
+              <p slot="title">
+                潘家园
+              </p>
+              <a href="#" slot="extra" @click="addScenic">
+                <Icon type="ios-plus-empty"></Icon>
+                添加
+              </a>
+              <ul>
+                <li>
+                  <img src="../assets/1.jpg" alt="" width="100%">
+                </li>
+              </ul>
+            </Card>
+          </Col>
+        </Row>
       </div>
     </Col>
   </Row>
@@ -142,9 +206,6 @@
   import areaJSON from '../common/area'
   export default {
     name: 'custom',
-    mounted () {
-      this.initMap()
-    },
     watch: {
       day: {
         deep: true,
@@ -156,6 +217,12 @@
       }
     },
     methods: {
+      addScenic () {
+        console.log(33323)
+      },
+      createScenic () {
+        this.showMap = false
+      },
       initMetadata () {
         var data = window.localStorage.getItem('metadata')
         try {
@@ -167,11 +234,9 @@
           return
         }
         this.day = data
-        this.changePass()
       },
       async initMap () {
         var _this = this
-        this.initMetadata()
         await this.$nextTick()
         var map = new window.BMap.Map('map')
         map.centerAndZoom(new window.BMap.Point(116.404, 39.915), 11)
@@ -209,9 +274,24 @@
             departure && destination && (this.changeMap = true) && this.driving.search(departure, destination, {waypoints: this.passing})
           }
         })
+        map = null
       },
       async changeDeparture (v, s) {
         await this.$nextTick()
+        var id = ''
+        var area = []
+        if (v.length > 1) {
+          id = s[1].id
+          area = v.slice(0, 2)
+        }
+        this.day[this.index].startScenic = []
+        this.day[this.index].startScenic.push(
+          {
+            index: 'start',
+            value: id,
+            label: area.join('')
+          }
+        )
         v.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
       },
       async changeDestination (v, s) {
@@ -219,6 +299,20 @@
           this.day[this.index + 1].departure = v
         }
         await this.$nextTick()
+        var id = ''
+        var area = []
+        if (v.length > 1) {
+          id = s[1].id
+          area = v.slice(0, 2)
+        }
+        this.day[this.index].endScenic = []
+        this.day[this.index].endScenic.push(
+          {
+            index: 'end',
+            value: id,
+            label: area.join('')
+          }
+        )
         v.length > 1 && this.day[this.index].departure.length > 1 && this.initMap()
       },
       async changePass (v, s) {
@@ -233,6 +327,20 @@
             })
           }
         })
+        var id = ''
+        var area = []
+        if (v.length > 1) {
+          id = s[1].id
+          area = v.slice(0, 2)
+        }
+        this.day[this.index].passScenic = []
+        this.day[this.index].passScenic.push(
+          {
+            index: 'pass',
+            value: id,
+            label: area.join('')
+          }
+        )
         this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
       },
       changeDay (k) {
@@ -276,8 +384,27 @@
             distance: '',
             rideTime: '',
             sceniCount: '',
+            startScenic: [],
+            endScenic: [],
+            passScenic: [],
             playTime: '',
-            trip: [
+            startTrip: [
+              {
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ],
+            endTrip: [
+              {
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ],
+            passTrip: [
               {
                 scenicName: '',
                 playTime: '',
@@ -317,10 +444,17 @@
       }
     },
     created () {
+      this.initMetadata()
+      this.initMap()
+      this.changePass()
       this.format()
     },
     data () {
       return {
+        scenicSelect: '',
+        search: '',
+        scenicList: [1, 2, 3, 4, 5],
+        showMap: true,
         myGeo: new window.BMap.Geocoder(),
         changeMap: false,
         changeDistance: false,
@@ -349,18 +483,31 @@
             rideTime: '',
             sceniCount: '',
             playTime: '',
-            trip: [
+            startScenic: [],
+            endScenic: [],
+            passScenic: [],
+            startTrip: [
               {
-                scenicName: '潘家园',
-                playTime: '10',
-                rideTime: '30',
-                rideDistance: '123'
-              },
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ],
+            endTrip: [
               {
-                scenicName: '角门西',
-                playTime: '20',
-                rideTime: '40',
-                rideDistance: '11'
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
+              }
+            ],
+            passTrip: [
+              {
+                scenicName: '',
+                playTime: '',
+                rideTime: '',
+                rideDistance: ''
               }
             ]
           }
@@ -376,8 +523,11 @@
 </script>
 
 <style>
+  .ivu-card-body {
+    padding: 8px!important;
+  }
   .basic_scoll {
-    height: calc(100% - 303px);
+    height: 100%;
     overflow: auto;
   }
   .ivu-spin-dot {
@@ -433,6 +583,7 @@
   .scenic_list {
     padding: 15px;
     position: relative;
+    margin-bottom: 20px;
   }
   .distance {
     margin: 6px 0;
@@ -455,9 +606,8 @@
     min-width: 1400px;
   }
   .scroll {
-    height: calc(100% - 134px);
+    height: calc(100% - 220px);
     overflow: auto;
-    padding-bottom: 40px;
   }
   .day_add {
     border-radius: 0!important;
