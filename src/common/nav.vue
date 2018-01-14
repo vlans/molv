@@ -1,7 +1,7 @@
 <template lang="jade">
   .navbar
     .logo
-      a(href="#")
+      a(href="http://120.79.33.51/")
         img(src="../assets/logo.png")
     .nav(v-if="!custom")
       ul(style="position: relative;")
@@ -59,7 +59,7 @@
       }
     },
     created () {
-      if (this.$route.name === 'custom') {
+      if (this.$route.name === 'custom' || this.$route.name === 'edit') {
         this.custom = true
       }
     },

@@ -148,7 +148,40 @@
           </TimelineItem>
         </Timeline>
       </div>
-      <Button @click="createScenic" long size="large" class="day_add" type="warning">{{day[index].btnTxt}}</Button>
+      <div>
+        <Modal
+          v-model="deleteModel"
+          title="删除当前途经地"
+          @on-ok="deletePassConfrim">
+          <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
+        </Modal>
+        <Modal
+          v-model="validatorModel"
+          title="请检查地点信息"
+          >
+          <p>出发地、目的地、途经地需要选择区级或区级以下地点</p>
+        </Modal>
+        <Modal
+          v-model="saveValidatorModel"
+          title="请检查路书信息"
+          >
+          <p>路书名称、出发时间不能为空</p>
+        </Modal>
+        <Modal
+          v-model="saveModel"
+          title="系统提示"
+          >
+          <p>系统繁忙，保存失败，请稍后再试</p>
+        </Modal>
+        <Modal
+          v-model="deleteScenicModel"
+          title="系统提示"
+          @on-ok="deleteScenicConfrim"
+          >
+          <p>是否要删除当前{{deleteScenicTxt.scenicName ? ' ' + deleteScenicTxt.scenicName + ' ' : ''}}景点</p>
+        </Modal>
+      </div>
+        <Button @click="createScenic" long size="large" class="day_add" type="warning">{{day[index].btnTxt}}</Button>
       </div>
     </div>
     </Col>
@@ -163,7 +196,7 @@
       <div class="col" style="padding: 10px;">
         <div class="clearfix">
           <Cascader v-model="day[index].serachScenic" @on-change="changeScen" :data="day[index].concatMerge" filterable style="float: left; padding-left: 5px;"></Cascader>
-          <div style="float: left;width: calc(100% - 155px); padding-left: 10px;">
+          <div style="float: left;width: calc(100% - 170px); padding-left: 10px;">
             <Input v-model="search" placeholder="请输入要查询的景点" style="float: left; width: 90%;" @keyup.native.enter="searchDestan"/>
             <Button icon="ios-search" type="warning" style="float: left; width: 8%; margin-left: 2%;" @click.native.stop="searchDestan"></Button>
           </div>
@@ -195,37 +228,6 @@
       </div>
       <div id="adpter"></div>
     </Col>
-      <Modal
-          v-model="deleteModel"
-          title="删除当前途经地"
-          @on-ok="deletePassConfrim">
-          <p>确定要删除当前{{deletePassTxt ? ' ' + deletePassTxt + ' ' : ''}}途经地?</p>
-        </Modal>
-        <Modal
-          v-model="validatorModel"
-          title="请检查地点信息"
-          >
-          <p>出发地、目的地、途经地需要选择区级或区级以下地点</p>
-        </Modal>
-        <Modal
-          v-model="saveValidatorModel"
-          title="请检查路书信息"
-          >
-          <p>路书名称、出发时间不能为空</p>
-        </Modal>
-        <Modal
-          v-model="saveModel"
-          title="系统提示"
-          >
-          <p>系统繁忙，保存失败，请稍后再试</p>
-        </Modal>
-        <Modal
-          v-model="deleteScenicModel"
-          title="系统提示"
-          @on-ok="deleteScenicConfrim"
-          >
-          <p>是否要删除当前{{deleteScenicTxt.scenicName ? ' ' + deleteScenicTxt.scenicName + ' ' : ''}}景点</p>
-        </Modal>
   </Row>
 </template>
 
@@ -258,11 +260,9 @@
         this.saveJson()
       },
       serviceValue () {
-        this.changeScenic = true
         this.scenicLists()
       },
       scenicValue () {
-        this.changeScenic = true
         this.scenicLists()
       }
     },
@@ -284,7 +284,7 @@
             if (ret && ret.taxiFare) {
               trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
               trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
-              day.distance += Number(trip[index].rideDistance)
+              day.distance += Math.floor(Number((ret.taxiFare.distance / 1000).toFixed(1)))
             }
           }
         })
@@ -421,7 +421,6 @@
             })
           }
         }
-        day.distance = Math.floor(day.distance)
         this.changeDistance = false
         map = null
         driving = null
@@ -767,18 +766,25 @@
         day.concatMerge = scenicArr
         day.serachScenic = day.departure.slice(0, 2)
       },
-      initMetadata () {
-        var data = window.localStorage.getItem('metadata')
-        try {
-          data = JSON.parse(data)
-        } catch (e) {
+      async initMetadata () {
+        var id = this.$route.query.id
+        var { data, errorCode } = await this.$http(
+          {
+            url: 'http://120.79.33.51:8080/motortrip/api/journeys/journeysPcQuery',
+            type: 'post',
+            data: {
+              journeysId: id
+            }
+          }
+        )
+        if (errorCode !== 0) {
           return
         }
-        if (data === null) {
-          return
+        if (data) {
+          try {
+            this.day = JSON.parse(data.journeys.json)
+          } catch (e) {}
         }
-        this.changeDistance = true
-        this.day = data
       },
       async initMap () {
         var _this = this
@@ -990,7 +996,7 @@
           this.index = index - 1
         }
         this.day.splice(index, 1)
-        this.day[index].departure = this.day[this.index].destination
+        this.day[index].departure = this.day[index - 1].destination
         this.initMap()
         this.resetTime('delete')
       },
@@ -1042,6 +1048,7 @@
     },
     data () {
       return {
+        userId: '',
         initFlag: true,
         initDistance: '',
         incloud: [],
@@ -1194,8 +1201,9 @@
     font-size: 10px;
   }
   .scenic_list {
-    height: calc(100% - 400px - 36px);
+    padding: 15px;
     position: relative;
+    margin-bottom: 36px;
   }
   .distance {
     margin: 6px 0;

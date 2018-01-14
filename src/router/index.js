@@ -6,7 +6,7 @@ import Success from '@/components/order/success'
 import Order from '@/components/order/order'
 import Pagination from '@/common/pagination'
 import Custom from '@/components/custom'
-import Silkbag from '@/components/silkbag/silkbag'
+import CustomEdit from '@/components/edit_custom'
 
 Vue.use(Router)
 
@@ -43,9 +43,9 @@ export default new Router({
       component: Custom
     },
     {
-      path: '/silkbag',
-      name: 'silkbag',
-      component: Silkbag
+      path: '/custom/edit',
+      name: 'edit',
+      component: CustomEdit
     }
   ]
 })

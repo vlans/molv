@@ -4,7 +4,7 @@
       .payment
         img.qrcode(:src="goods.url", v-if="!success")
       .success_icon(v-if="success")
-        icon(name="check-circle", color="#2CB98C", scale="8")
+        img(src="../../assets/success.jpg")
         .sub
           h2 购买服务成功
           p 可在
