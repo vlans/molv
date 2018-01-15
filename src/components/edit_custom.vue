@@ -52,7 +52,7 @@
     </Col>
     <Col span="6" style="height: 100%;">
     <div class="col">
-      <Spin fix size="large" v-if="changeDistance"></Spin>
+      <!--<Spin fix size="large" v-if="changeDistance"></Spin>-->
       <div class="basic_scoll">
         <div class="basic">
         <span class="label">
@@ -562,7 +562,7 @@
         var start = this.departurePoint.lng + ',' + this.departurePoint.lat + '|'
         var end = '|' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
         var pass = []
-        this.passing.forEach(v => {
+        this.day[this.index].passingDes.forEach(v => {
           pass.push(
             v.lng + ',' + v.lat
           )
@@ -712,6 +712,7 @@
           return
         }
         if (this.day[this.index].btnTxt === '添加景点') {
+          this.day[this.index].serachScenic = this.day[this.index].departure.slice(0, 2)
           this.scenicLists()
           this.changeScenic = true
           this.day[this.index].btnTxt = '返回地图'
@@ -795,6 +796,7 @@
             this.day = JSON.parse(data.journeys.json)
             this.day[this.index].showMap = true
             this.day[this.index].btnTxt = '添加景点'
+            this.day[this.index].serachScenic = this.day[this.index].departure.slice(0, 2)
             this.initMap()
             this.changePass()
           } catch (e) {}
@@ -832,13 +834,13 @@
             console.log(point)
             this.departurePoint = new BMap.Point(point.lng, point.lat)
             this.day[this.index].startDeparture = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.passing})
+            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         this.day[this.index].destination.length > 1 && this.myGeo.getPoint(this.day[this.index].destination.join(''), (point) => {
           if (point) {
             this.destinationPoint = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.passing})
+            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         map = null
@@ -893,7 +895,7 @@
       async changePass (v, s) {
         await this.$nextTick()
         this.passing = []
-        this.day[this.index].passId = []
+        this.day[this.index].passingDes = []
         this.day[this.index].passScenic = []
         var list = []
         if (s && s.length > 1) {
@@ -919,7 +921,7 @@
             }
             this.myGeo.getPoint(n.address.join(''), (point) => {
               if (point) {
-                this.passing.push(new BMap.Point(point.lng, point.lat))
+                this.day[this.index].passingDes.push(new BMap.Point(point.lng, point.lat))
               }
             })
             this.day[this.index].passScenic.push(n.address[0])
@@ -968,6 +970,7 @@
         var formatTime = moment(this.day[this.day.length - 1].formatTime).add(1, 'd').format('YYYY-MM-DD')
         this.day.push(
           {
+            passingDes: '',
             departurePoint: '',
             destinationPoint: '',
             incloudStart: [],
@@ -1098,6 +1101,7 @@
         destination: '',
         day: [
           {
+            passingDes: '',
             departurePoint: '',
             destinationPoint: '',
             incloudStart: [],
@@ -1215,9 +1219,8 @@
     font-size: 10px;
   }
   .scenic_list {
-    padding: 15px;
     position: relative;
-    margin-bottom: 36px;
+    padding: 15px 10px;
   }
   .distance {
     margin: 6px 0;
