@@ -1,6 +1,6 @@
 <template>
   <Row :gutter="24" type="flex" justify="center" class="custom_container">
-    <Col span="5">
+    <Col span="5" style="height: 100%;">
     <div class="col">
       <p class="basic">
         <span class="label">
@@ -50,7 +50,7 @@
       <Button @click="createDay" long size="large" class="day_add" type="warning">添加新的一天</Button>
     </div>
     </Col>
-    <Col span="6">
+    <Col span="6" style="height: 100%;">
     <div class="col">
       <Spin fix size="large" v-if="changeDistance"></Spin>
       <div class="basic_scoll">
@@ -191,14 +191,14 @@
       </div>
     </div>
     </Col>
-    <Col span="12" v-show="day[index].showMap">
+    <Col span="12" v-show="day[index].showMap" style="height: 100%;">
       <div class="col">
         <div id="map"></div>
         <Spin fix size="large" v-if="changeMap">
         </Spin>
       </div>
     </Col>
-    <Col span="12" v-show="!day[index].showMap">
+    <Col span="12" v-show="!day[index].showMap" style="height: 100%;">
       <div class="col" style="padding: 10px;">
         <div class="clearfix">
           <Cascader v-model="day[index].serachScenic" @on-change="changeScen" :data="day[index].concatMerge" filterable style="float: left; padding-left: 5px;"></Cascader>
@@ -346,7 +346,7 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName) 
+                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
                 }
               }
             })
@@ -458,7 +458,7 @@
       async addScenic (v, i) {
         await this.$nextTick()
         var day = this.day[this.index]
-        day.playTime = Number(day.playTime) 
+        day.playTime = Number(day.playTime)
         if (day.serachScenic.join('') === day.departure.join('')) {
           day.startTrip.push(
             {
@@ -599,7 +599,7 @@
                 destination_id: n.id,
                 miles: n.rideDistance
               }
-              // driving.search(trip[i - 1].scenicName, trip[i].scenicName) 
+              // driving.search(trip[i - 1].scenicName, trip[i].scenicName)
             }
             line += '>' + n.scenicName
           })
@@ -896,6 +896,9 @@
         this.day[this.index].passId = []
         this.day[this.index].passScenic = []
         var list = []
+        if (s && s.length > 1) {
+          this.day[this.index].passId[this.passIndex] = s[1].id
+        }
         this.day[this.index].passing.forEach((n, i) => {
           if (n.address.length > 1) {
             if (s) {
@@ -909,7 +912,6 @@
                 n.pass.children = [s[1]]
                 list.push([n.pass])
               }
-              this.day[this.index].passId.push(s[1].id)
             } else {
               if (n.pass) {
                 list.push([n.pass])
@@ -940,7 +942,8 @@
       },
       deletePassConfrim () {
         this.passArray.splice(this.i, 1)
-        this.day[this.index].passing.splice(this.i, 1)
+        this.day[this.index].passId.splice(this.i, 1)
+        // this.day[this.index].passing.splice(this.i, 1)
         this.changePass()
         this.concatScenic()
       },
