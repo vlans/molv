@@ -163,7 +163,7 @@
       <div class="col" style="padding: 10px;">
         <div class="clearfix">
           <Cascader v-model="day[index].serachScenic" @on-change="changeScen" :data="day[index].concatMerge" filterable style="float: left; padding-left: 5px;"></Cascader>
-          <div style="float: left;width: calc(100% - 155px); padding-left: 10px;">
+          <div style="float: left;width: calc(100% - 170px); padding-left: 10px;">
             <Input v-model="search" placeholder="请输入要查询的景点" style="float: left; width: 90%;" @keyup.native.enter="searchDestan"/>
             <Button icon="ios-search" type="warning" style="float: left; width: 8%; margin-left: 2%;" @click.native.stop="searchDestan"></Button>
           </div>
@@ -225,6 +225,12 @@
           @on-ok="deleteScenicConfrim"
           >
           <p>是否要删除当前{{deleteScenicTxt.scenicName ? ' ' + deleteScenicTxt.scenicName + ' ' : ''}}景点</p>
+        </Modal>
+        <Modal
+          v-model="saveLuModel"
+          title="系统提示"
+          >
+          <p>保存成功</p>
         </Modal>
   </Row>
 </template>
@@ -639,9 +645,10 @@
           this.saveModel = true
           return true
         }
-        window.localStorage.removeItem('roadBook')
-        window.localStorage.removeItem('metadata')
-        window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
+        this.saveLuModel = true
+        // window.localStorage.removeItem('roadBook')
+        // window.localStorage.removeItem('metadata')
+        // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
@@ -779,6 +786,8 @@
         }
         this.changeDistance = true
         this.day = data
+        this.day[this.index].showMap = true
+        this.day[this.index].btnTxt = '添加景点'
       },
       async initMap () {
         var _this = this
@@ -830,7 +839,7 @@
           if (v.length > 1) {
             start.children = [s[1]]
             this.day[this.index].concatStart = [start]
-            this.day[this.index].startId = s[s.length - 1].id
+            this.day[this.index].startId = s[1].id
             this.day[this.index].provinceId = s[0].id
           }
           this.day[this.index].startScenic = [v[0]]
@@ -854,7 +863,7 @@
           if (v.length > 1) {
             end.children = [s[1]]
             this.day[this.index].concatEnd = [end]
-            this.day[this.index].endId = s[s.length - 1].id
+            this.day[this.index].endId = s[1].id
           }
           this.day[this.index].endScenic = [v[0]]
           if (this.day[this.index].showMap) {
@@ -889,7 +898,7 @@
                 n.pass.children = [s[1]]
                 list.push([n.pass])
               }
-              this.day[this.index].passId.push(s[s.length - 1].id)
+              this.day[this.index].passId.push(s[1].id)
             } else {
               if (n.pass) {
                 list.push([n.pass])
@@ -1042,6 +1051,7 @@
     },
     data () {
       return {
+        saveLuModel: false,
         initFlag: true,
         initDistance: '',
         incloud: [],

@@ -180,6 +180,12 @@
           >
           <p>是否要删除当前{{deleteScenicTxt.scenicName ? ' ' + deleteScenicTxt.scenicName + ' ' : ''}}景点</p>
         </Modal>
+        <Modal
+          v-model="saveLuModel"
+          title="系统提示"
+          >
+          <p>保存成功</p>
+        </Modal>
       </div>
         <Button @click="createScenic" long size="large" class="day_add" type="warning">{{day[index].btnTxt}}</Button>
       </div>
@@ -546,7 +552,7 @@
           miles: "",
           day: this.day.length,
           start_at: moment(this.time).format('X'),
-          journeysId: "",
+          journeysId: this.$route.query.id,
           journeys_details: [],
           journeys_cities: []
         }
@@ -563,10 +569,12 @@
         })
         var passing = pass.join('|')
         var markerStart = start + passing + end
+        console.log(markerStart)
         var pstart = this.departurePoint.lng + ',' + this.departurePoint.lat + ';'
         var pend = ';' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
         var spassing = pass.join(';')
         var markerEnd = pstart + spassing + pend
+        console.log(markerEnd)
         sdata.image = markerStart + str + markerEnd
         this.day.forEach((v, k) => {
           var trip = []
@@ -638,9 +646,10 @@
           this.saveModel = true
           return true
         }
-        window.localStorage.removeItem('roadBook')
-        window.localStorage.removeItem('metadata')
-        window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
+        this.saveLuModel = true
+        // window.localStorage.removeItem('roadBook')
+        // window.localStorage.removeItem('metadata')
+        // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
@@ -782,7 +791,12 @@
         }
         if (data) {
           try {
+            this.name = data.journeys.title
             this.day = JSON.parse(data.journeys.json)
+            this.day[this.index].showMap = true
+            this.day[this.index].btnTxt = '添加景点'
+            this.initMap()
+            this.changePass()
           } catch (e) {}
         }
       },
@@ -836,7 +850,7 @@
           if (v.length > 1) {
             start.children = [s[1]]
             this.day[this.index].concatStart = [start]
-            this.day[this.index].startId = s[s.length - 1].id
+            this.day[this.index].startId = s[1].id
             this.day[this.index].provinceId = s[0].id
           }
           this.day[this.index].startScenic = [v[0]]
@@ -860,7 +874,7 @@
           if (v.length > 1) {
             end.children = [s[1]]
             this.day[this.index].concatEnd = [end]
-            this.day[this.index].endId = s[s.length - 1].id
+            this.day[this.index].endId = s[1].id
           }
           this.day[this.index].endScenic = [v[0]]
           if (this.day[this.index].showMap) {
@@ -895,7 +909,7 @@
                 n.pass.children = [s[1]]
                 list.push([n.pass])
               }
-              this.day[this.index].passId.push(s[s.length - 1].id)
+              this.day[this.index].passId.push(s[1].id)
             } else {
               if (n.pass) {
                 list.push([n.pass])
@@ -1040,14 +1054,11 @@
     mounted () {
       this.initCheckAuth()
       this.initMetadata()
-      if (this.day[this.index].showMap) {
-        this.initMap()
-      }
-      this.changePass()
       this.format()
     },
     data () {
       return {
+        saveLuModel: false,
         userId: '',
         initFlag: true,
         initDistance: '',
