@@ -294,6 +294,7 @@
               trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
               trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
               day.distance += Number(trip[index].rideDistance)
+              day.rideTime += Number(trip[index].rideTime)
             }
           }
         })
@@ -448,11 +449,13 @@
         this.incloud.splice(this.scenicIndex, 1)
         day.distance -= Number(this.deleteScenicTxt.rideDistance)
         day.playTime -= Number(this.deleteScenicTxt.playTime)
+        day.rideTime -= Number(this.deleteScenicTxt.rideTime)
         day.distance = day.distance.toFixed(1)
         day.playTime = day.playTime.toFixed(1)
         day.sceniCount = day.startTrip.concat(day.passTrip).concat(day.endTrip).length
         this.deleteScenicModel = false
         this.changeScenic = true
+        this.computedScenic()
         this.scenicLists()
       },
       searchDestan () {
@@ -859,9 +862,6 @@
         this.computedScenic()
       },
       async changeDestination (v, s) {
-        if (this.index + 1 < this.day.length) {
-          this.day[this.index + 1].departure = v
-        }
         await this.$nextTick()
         if (s) {
           var end = s[0]
@@ -930,6 +930,8 @@
         list = null
       },
       changeDay (k) {
+        this.day[k].showMap = true
+        this.day[k].btnTxt = '添加景点'
         this.index = k
         this.initMap()
       },
@@ -968,15 +970,15 @@
             incloudEnd: [],
             incloudPass: [],
             addScenicFlag: '',
-            provinceId: '',
-            startId: '',
+            provinceId: this.day[this.day.length - 1].provinceId,
+            startId: this.day[this.day.length - 1].endId,
             endId: '',
             passId: [],
             startDeparture: [],
             serachScenic: [],
             btnTxt: '添加景点',
             showMap: true,
-            concatStart: [],
+            concatStart: this.day[this.day.length - 1].concatEnd,
             concatEnd: [],
             concatPass: [],
             concatMerge: [],
@@ -992,7 +994,7 @@
             distance: '',
             rideTime: '',
             sceniCount: '',
-            startScenic: [],
+            startScenic: this.day[this.day.length - 1].endScenic,
             endScenic: [],
             passScenic: [],
             playTime: '',
@@ -1002,12 +1004,15 @@
           }
         )
       },
-      deleteDay (index) {
+      async deleteDay (index) {
         if (index !== 0) {
           this.index = index - 1
         }
         this.day.splice(index, 1)
-        this.day[index].departure = this.day[this.index].destination
+        if (this.day[index]) {
+          await this.$nextTick()
+          this.day.splice(1, index, Object.assign(this.day[index], {departure: this.day[this.index].destination}))
+        }
         this.initMap()
         this.resetTime('delete')
       },
