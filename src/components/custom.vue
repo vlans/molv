@@ -1,6 +1,6 @@
 <template>
   <Row :gutter="24" type="flex" justify="center" class="custom_container">
-    <Col span="5">
+    <Col span="5" style="height: 100%;">
     <div class="col">
       <p class="basic">
         <span class="label">
@@ -50,9 +50,9 @@
       <Button @click="createDay" long size="large" class="day_add" type="warning">添加新的一天</Button>
     </div>
     </Col>
-    <Col span="6">
+    <Col span="6" style="height: 100%;">
     <div class="col">
-      <Spin fix size="large" v-if="changeDistance"></Spin>
+      <!--<Spin fix size="large" v-if="changeDistance"></Spin>-->
       <div class="basic_scoll">
         <div class="basic">
         <span class="label">
@@ -85,7 +85,7 @@
           途经地
         </span>
         <Button type="warning" size="small" class="add_passing" @click.stop="addPassing(day[index].passing)">添加途经地</Button>
-        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)">
+        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)" :key="v">
           <Cascader placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
@@ -101,7 +101,8 @@
               </h4>
             </div>
             <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
                 <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
@@ -119,7 +120,8 @@
               </h4>
             </div>
             <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
                 <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
@@ -137,7 +139,8 @@
               </h4>
             </div>
             <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
                 <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
@@ -152,14 +155,14 @@
       </div>
     </div>
     </Col>
-    <Col span="12" v-show="day[index].showMap">
+    <Col span="12" v-show="day[index].showMap" style="height: 100%;">
       <div class="col">
         <div id="map"></div>
         <Spin fix size="large" v-if="changeMap">
         </Spin>
       </div>
     </Col>
-    <Col span="12" v-show="!day[index].showMap">
+    <Col span="12" v-show="!day[index].showMap" style="height: 100%;">
       <div class="col" style="padding: 10px;">
         <div class="clearfix">
           <Cascader v-model="day[index].serachScenic" @on-change="changeScen" :data="day[index].concatMerge" filterable style="float: left; padding-left: 5px;"></Cascader>
@@ -291,6 +294,7 @@
               trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
               trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
               day.distance += Number(trip[index].rideDistance)
+              day.rideTime += Number(trip[index].rideTime)
             }
           }
         })
@@ -346,7 +350,7 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName) 
+                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
                 }
               }
             })
@@ -445,11 +449,13 @@
         this.incloud.splice(this.scenicIndex, 1)
         day.distance -= Number(this.deleteScenicTxt.rideDistance)
         day.playTime -= Number(this.deleteScenicTxt.playTime)
+        day.rideTime -= Number(this.deleteScenicTxt.rideTime)
         day.distance = day.distance.toFixed(1)
         day.playTime = day.playTime.toFixed(1)
         day.sceniCount = day.startTrip.concat(day.passTrip).concat(day.endTrip).length
         this.deleteScenicModel = false
         this.changeScenic = true
+        this.computedScenic()
         this.scenicLists()
       },
       searchDestan () {
@@ -459,7 +465,7 @@
       async addScenic (v, i) {
         await this.$nextTick()
         var day = this.day[this.index]
-        day.playTime = Number(day.playTime) 
+        day.playTime = Number(day.playTime)
         if (day.serachScenic.join('') === day.departure.join('')) {
           day.startTrip.push(
             {
@@ -530,7 +536,7 @@
         }
         var { data, errorCode } = await this.$http(
           {
-            url: 'http://120.79.33.51:8080/motortrip/api/destinations/destinationsPcListQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/destinations/destinationsPcListQuery',
             type: 'post',
             data: sdata
           }
@@ -549,7 +555,7 @@
           userId: this.userId,
           title: this.name,
           line: "",
-          image: "http://api.map.baidu.com/staticimage/v2?ak=GbG0CvbD7CeeSM71l3AkCy7l&width=1024&height=600&markers=",
+          image: "https://api.map.baidu.com/staticimage/v2?ak=GbG0CvbD7CeeSM71l3AkCy7l&width=1024&height=600&markers=",
           miles: "",
           day: this.day.length,
           start_at: moment(this.time).format('X'),
@@ -563,7 +569,7 @@
         var start = this.departurePoint.lng + ',' + this.departurePoint.lat + '|'
         var end = '|' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
         var pass = []
-        this.passing.forEach(v => {
+        this.day[this.index].passingDes.forEach(v => {
           pass.push(
             v.lng + ',' + v.lat
           )
@@ -598,7 +604,7 @@
                 destination_id: n.id,
                 miles: n.rideDistance
               }
-              // driving.search(trip[i - 1].scenicName, trip[i].scenicName) 
+              // driving.search(trip[i - 1].scenicName, trip[i].scenicName)
             }
             line += '>' + n.scenicName
           })
@@ -637,7 +643,7 @@
           {
             dataType: 'json',
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/journeys/addJourneysPc',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/journeys/addJourneysPc',
             data: sdata
           }
         )
@@ -646,9 +652,12 @@
           return true
         }
         this.saveLuModel = true
-        // window.localStorage.removeItem('roadBook')
-        // window.localStorage.removeItem('metadata')
-        // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
+        window.localStorage.removeItem('roadBook')
+        window.localStorage.removeItem('metadata')
+        Object.assign(this.$data, this.$options.data())
+        this.initMap()
+
+        // window.location.href = "https://120.79.33.51/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
@@ -711,6 +720,7 @@
           return
         }
         if (this.day[this.index].btnTxt === '添加景点') {
+          this.day[this.index].serachScenic = this.day[this.index].departure.slice(0, 2)
           this.scenicLists()
           this.changeScenic = true
           this.day[this.index].btnTxt = '返回地图'
@@ -786,6 +796,7 @@
         }
         this.changeDistance = true
         this.day = data
+        this.day[this.index].serachScenic = this.day[this.index].departure.slice(0, 2)
         this.day[this.index].showMap = true
         this.day[this.index].btnTxt = '添加景点'
       },
@@ -821,13 +832,13 @@
             console.log(point)
             this.departurePoint = new BMap.Point(point.lng, point.lat)
             this.day[this.index].startDeparture = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.passing})
+            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         this.day[this.index].destination.length > 1 && this.myGeo.getPoint(this.day[this.index].destination.join(''), (point) => {
           if (point) {
             this.destinationPoint = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.passing})
+            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         map = null
@@ -854,9 +865,6 @@
         this.computedScenic()
       },
       async changeDestination (v, s) {
-        if (this.index + 1 < this.day.length) {
-          this.day[this.index + 1].departure = v
-        }
         await this.$nextTick()
         if (s) {
           var end = s[0]
@@ -881,10 +889,12 @@
       },
       async changePass (v, s) {
         await this.$nextTick()
-        this.passing = []
-        this.day[this.index].passId = []
+        this.day[this.index].passingDes = []
         this.day[this.index].passScenic = []
         var list = []
+        if (s && s.length > 1) {
+          this.day[this.index].passId[this.passIndex] = s[1].id
+        }
         this.day[this.index].passing.forEach((n, i) => {
           if (n.address.length > 1) {
             if (s) {
@@ -898,7 +908,6 @@
                 n.pass.children = [s[1]]
                 list.push([n.pass])
               }
-              this.day[this.index].passId.push(s[1].id)
             } else {
               if (n.pass) {
                 list.push([n.pass])
@@ -906,7 +915,7 @@
             }
             this.myGeo.getPoint(n.address.join(''), (point) => {
               if (point) {
-                this.passing.push(new BMap.Point(point.lng, point.lat))
+                this.day[this.index].passingDes.push(new BMap.Point(point.lng, point.lat))
               }
             })
             this.day[this.index].passScenic.push(n.address[0])
@@ -924,12 +933,15 @@
         list = null
       },
       changeDay (k) {
+        this.day[k].showMap = true
+        this.day[k].btnTxt = '添加景点'
         this.index = k
         this.initMap()
       },
       deletePassConfrim () {
         this.passArray.splice(this.i, 1)
-        this.day[this.index].passing.splice(this.i, 1)
+        this.day[this.index].passId.splice(this.i, 1)
+        // this.day[this.index].passing.splice(this.i, 1)
         this.changePass()
         this.concatScenic()
       },
@@ -954,21 +966,22 @@
         var formatTime = moment(this.day[this.day.length - 1].formatTime).add(1, 'd').format('YYYY-MM-DD')
         this.day.push(
           {
+            passingDes: [],
             departurePoint: '',
             destinationPoint: '',
             incloudStart: [],
             incloudEnd: [],
             incloudPass: [],
             addScenicFlag: '',
-            provinceId: '',
-            startId: '',
+            provinceId: this.day[this.day.length - 1].provinceId,
+            startId: this.day[this.day.length - 1].endId,
             endId: '',
             passId: [],
             startDeparture: [],
             serachScenic: [],
             btnTxt: '添加景点',
             showMap: true,
-            concatStart: [],
+            concatStart: this.day[this.day.length - 1].concatEnd,
             concatEnd: [],
             concatPass: [],
             concatMerge: [],
@@ -984,7 +997,7 @@
             distance: '',
             rideTime: '',
             sceniCount: '',
-            startScenic: [],
+            startScenic: this.day[this.day.length - 1].endScenic,
             endScenic: [],
             passScenic: [],
             playTime: '',
@@ -994,12 +1007,15 @@
           }
         )
       },
-      deleteDay (index) {
+      async deleteDay (index) {
         if (index !== 0) {
           this.index = index - 1
         }
         this.day.splice(index, 1)
-        this.day[index].departure = this.day[this.index].destination
+        if (this.day[index]) {
+          await this.$nextTick()
+          this.day.splice(1, index, Object.assign(this.day[index], {departure: this.day[this.index].destination}))
+        }
         this.initMap()
         this.resetTime('delete')
       },
@@ -1030,11 +1046,11 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://120.79.33.51/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
-          location.href = 'http://120.79.33.51/journeys'
+          location.href = 'https://www.motortrip.cn/journeys'
           return
         }
         this.userId = data.uid
@@ -1087,6 +1103,7 @@
         destination: '',
         day: [
           {
+            passingDes: [],
             departurePoint: '',
             destinationPoint: '',
             incloudStart: [],
@@ -1204,8 +1221,9 @@
     font-size: 10px;
   }
   .scenic_list {
-    height: calc(100% - 400px - 36px);
+    /*height: calc(100% - 400px - 36px - 60px);*/
     position: relative;
+    padding: 15px 10px;
   }
   .distance {
     margin: 6px 0;

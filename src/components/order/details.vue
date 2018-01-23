@@ -67,7 +67,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/merchandiseConfirmQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/merchandise/merchandiseConfirmQuery',
             data: {merchandiseId: id}
           }
         )
@@ -112,7 +112,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/addOrder',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/merchandise/addOrder',
             data: {userId: uid, merchandiseId: id, phone: this.phone, QQ: this.qq, type: this.type}
           }
         )
@@ -241,12 +241,12 @@
       margin-top: -8px;
     }
     .zhifubao {
-      background: url('http://120.79.33.51:8080/motortrip/dist/static/zhifubao.jpg') no-repeat -24px -37px;
+      background: url('http://www.motortrip.cn:8080/motortrip/dist/static/zhifubao.jpg') no-repeat -24px -37px;
       background-size: 72%;
       margin-right: 20px;
     }
     .wechat {
-      background: url('http://120.79.33.51:8080/motortrip/dist/static/wechat.jpg') no-repeat 10px -19px;
+      background: url('http://www.motortrip.cn:8080/motortrip/dist/static/wechat.jpg') no-repeat 10px -19px;
       background-size: 60%;
     }
     .submit {

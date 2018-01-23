@@ -43,7 +43,7 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://120.79.33.51/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
@@ -61,7 +61,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/user/userQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/user/userQuery',
             data: { userId: id }
           }
         )
@@ -84,7 +84,7 @@
     height: 100%;
   }
   body {
-    background: url('http://120.79.33.51:8080/motortrip/dist/static/background.jpg');
+    background: url('http://www.motortrip.cn:8080/motortrip/dist/static/background.jpg');
   }
   #app {
     font-size: 14px;
