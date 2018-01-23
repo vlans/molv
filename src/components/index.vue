@@ -8,7 +8,7 @@
             h2.title {{item.title}}
             h2.price ￥{{item.price}}
           .active
-            a.down(:href="item.downloadUrl") 下载文件
+            a.down(@click="downLoad(item.merchandiseId, item.downloadUrl)") 下载文件
             a.pay(@click="shopSer(item.merchandiseId)") 购买服务
         p.service 服务包含：{{item.route}}
         p.desc {{item.des}}
@@ -24,6 +24,18 @@
       this.initData()
     },
     methods: {
+      async downLoad (id, url) {
+        window.open(url)
+        await this.$http(
+          {
+            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/addMerchandiseCheckNumber',
+            type: 'post',
+            data: {
+              merchandiseId: id
+            }
+          }
+        )
+      },
       async shopSer (id) {
         var { data } = await this.$http(
           {
