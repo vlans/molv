@@ -33,13 +33,13 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://120.79.33.51/users/checkAuth'
+            url: 'http://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
           localStorage.removeItem('uid')
           localStorage.removeItem('user')
-          location.href = 'http://120.79.33.51/landing?redirect=' + location.href
+          location.href = 'http://www.motortrip.cn/landing?redirect=' + location.href
           return
         }
         localStorage.setItem('uid', data.uid)
@@ -50,7 +50,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/user/userQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/user/userQuery',
             data: { userId: id }
           }
         )
@@ -64,7 +64,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/merchandise/merchandiseListQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/merchandise/merchandiseListQuery',
             data: { number: this.current, pageNum: '10' }
           }
         )

@@ -536,7 +536,7 @@
         }
         var { data, errorCode } = await this.$http(
           {
-            url: 'http://120.79.33.51:8080/motortrip/api/destinations/destinationsPcListQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/destinations/destinationsPcListQuery',
             type: 'post',
             data: sdata
           }
@@ -643,7 +643,7 @@
           {
             dataType: 'json',
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/journeys/addJourneysPc',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/journeys/addJourneysPc',
             data: sdata
           }
         )
@@ -652,8 +652,10 @@
           return true
         }
         this.saveLuModel = true
-        // window.localStorage.removeItem('roadBook')
-        // window.localStorage.removeItem('metadata')
+        window.localStorage.removeItem('roadBook')
+        window.localStorage.removeItem('metadata')
+        Object.assign(this.$data, this.$options.data())
+
         // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
       },
       saveValidator () {
@@ -1043,11 +1045,11 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://120.79.33.51/users/checkAuth'
+            url: 'http://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
-          location.href = 'http://120.79.33.51/journeys'
+          location.href = 'http://www.motortrip.cn/journeys'
           return
         }
         this.userId = data.uid
