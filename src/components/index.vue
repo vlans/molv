@@ -33,13 +33,13 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://www.motortrip.cn/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
           localStorage.removeItem('uid')
           localStorage.removeItem('user')
-          location.href = 'http://www.motortrip.cn/landing?redirect=' + location.href
+          location.href = 'https://www.motortrip.cn/landing?redirect=' + location.href
           return
         }
         localStorage.setItem('uid', data.uid)

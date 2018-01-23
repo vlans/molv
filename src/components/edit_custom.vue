@@ -548,7 +548,7 @@
           userId: this.userId,
           title: this.name,
           line: "",
-          image: "http://api.map.baidu.com/staticimage/v2?ak=GbG0CvbD7CeeSM71l3AkCy7l&width=1024&height=600&markers=",
+          image: "https://api.map.baidu.com/staticimage/v2?ak=GbG0CvbD7CeeSM71l3AkCy7l&width=1024&height=600&markers=",
           miles: "",
           day: this.day.length,
           start_at: moment(this.time).format('X'),
@@ -649,7 +649,7 @@
         this.saveLuModel = true
         window.localStorage.removeItem('roadBook')
         window.localStorage.removeItem('metadata')
-        // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
+        // window.location.href = "https://120.79.33.51/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
@@ -1047,11 +1047,11 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://www.motortrip.cn/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
-          location.href = 'http://www.motortrip.cn/journeys'
+          location.href = 'https://www.motortrip.cn/journeys'
           return
         }
         this.userId = data.uid

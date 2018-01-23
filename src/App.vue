@@ -43,7 +43,7 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'http://www.motortrip.cn/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {

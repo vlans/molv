@@ -8,13 +8,13 @@
         .left_nav
           ul
             li
-              a.route(href="http://www.motortrip.cn/users/journey") 我的行程单
+              a.route(href="https://www.motortrip.cn/users/journey") 我的行程单
             li.active
               a.route(href="javascript:void(0);") 我的订单
             li
-              a.route(href="http://www.motortrip.cn/users/collect") 我的收藏
+              a.route(href="https://www.motortrip.cn/users/collect") 我的收藏
             li
-              a.route(href="http://www.motortrip.cn/users/center") 个人中心
+              a.route(href="https://www.motortrip.cn/users/center") 个人中心
         .content
           .title
             span 我的订单

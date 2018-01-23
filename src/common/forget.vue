@@ -46,7 +46,7 @@
               withCredentials: true
             },
             type: 'post',
-            url: 'http://www.motortrip.cn/users/changePassword',
+            url: 'https://www.motortrip.cn/users/changePassword',
             data: { old_password: this.original, password: this.pwd, repeat_password: this.rpwd }
           }
         )
