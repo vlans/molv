@@ -655,6 +655,7 @@
         window.localStorage.removeItem('roadBook')
         window.localStorage.removeItem('metadata')
         Object.assign(this.$data, this.$options.data())
+        this.initMap()
 
         // window.location.href = "http://120.79.33.51/journeys/" + data.journeysId
       },
