@@ -244,7 +244,7 @@
   import areaJSON from '../common/area'
   export default {
     name: 'custom',
-    props: ['useFlag'],
+    props: ['useFlag', 'clearFlag'],
     watch: {
       day: {
         deep: true,
@@ -273,6 +273,10 @@
       scenicValue () {
         this.changeScenic = true
         this.scenicLists()
+      },
+      clearFlag () {
+        Object.assign(this.$data, this.$options.data())
+        this.initMap()
       }
     },
     methods: {
@@ -1006,6 +1010,7 @@
             passTrip: []
           }
         )
+        this.index = this.day.length - 1
       },
       async deleteDay (index) {
         if (index !== 0) {

@@ -17,7 +17,7 @@
         <DatePicker @on-change="dateChange" v-model="time" :options="dateOptions" size="large" type="date" format="yyyy-MM-dd" class="size" placeholder="请选择出发时间" :clearable="false"></DatePicker>
       </p>
       <div class="scroll">
-        <div class="day" v-for="(item, k) in day" @click.stop="changeDay(k)">
+        <div class="day" v-for="(item, k) in day" @click.stop="changeDay(k)" :key="k">
           <h3 class="day_txt">
             D{{ k + 1 }}
           </h3>
@@ -243,7 +243,7 @@
   import areaJSON from '../common/area'
   export default {
     name: 'custom',
-    props: ['useFlag'],
+    props: ['useFlag', 'clearFlag'],
     watch: {
       day: {
         deep: true,
@@ -270,6 +270,10 @@
       },
       scenicValue () {
         this.scenicLists()
+      },
+      clearFlag () {
+        Object.assign(this.$data, this.$options.data())
+        this.initMap()
       }
     },
     methods: {
@@ -1010,6 +1014,7 @@
             passTrip: []
           }
         )
+        this.index = this.day.length - 1
       },
       deleteDay (index) {
         if (index !== 0) {

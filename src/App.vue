@@ -1,7 +1,7 @@
 <template lang="jade">
   #app
-    nav-bar(:orderActive="active", :userInfo="userInfo", @showModal="showModal", @save="save")
-    router-view(@orderActive="orderActive", @getUser="getUser", :useFlag="flag")
+    nav-bar(:orderActive="active", :userInfo="userInfo", @showModal="showModal", @save="save", @clearLocatData="clearLocatData")
+    router-view(@orderActive="orderActive", @getUser="getUser", :useFlag="flag", :clearFlag="clear")
     foot
     forget(:show="show")
 </template>
@@ -18,13 +18,17 @@
         active: true,
         userInfo: '',
         indexs: false,
-        show: false
+        show: false,
+        clear: false
       }
     },
     created () {
       this.checkUid()
     },
     methods: {
+      clearLocatData () {
+        this.clear = !this.clear
+      },
       save (v) {
         this.flag = v
       },
