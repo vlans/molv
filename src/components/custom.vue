@@ -59,7 +59,7 @@
           {{day[index].formatTime}}
         </span>
         <p class="distance">
-          总共路程 <span class="light_txt">{{day[index].distance ? day[index].distance + '公里' : '0公里'}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime ? day[index].rideTime + '小时' : '0小时'}}</span>
+          总共路程 <span class="light_txt">{{day[index].distance ? day[index].distance.toFixed(1) + '公里' : '0公里'}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime ? day[index].rideTime + '小时' : '0小时'}}</span>
         </p>
         <p class="distance_time">
           总共游玩 <span class="light_txt">{{day[index].sceniCount ? day[index].sceniCount + '个' : '0个'}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime ? day[index].playTime + '小时' : '0小时'}}</span>
@@ -276,6 +276,7 @@
       },
       clearFlag () {
         Object.assign(this.$data, this.$options.data())
+        this.format()
         this.initMap()
       }
     },
@@ -540,7 +541,7 @@
         }
         var { data, errorCode } = await this.$http(
           {
-            url: 'http://www.motortrip.cn:8080/motortrip/api/destinations/destinationsPcListQuery',
+            url: 'http://120.79.33.51:8080/motortrip/api/destinations/destinationsPcListQuery',
             type: 'post',
             data: sdata
           }
@@ -639,7 +640,7 @@
         var json = JSON.stringify(this.day)
         sdata.journeys_cities = journeys_cities
         sdata.journeys_details = journeys_details
-        sdata.miles = String(miles)
+        sdata.miles = String(miles).toFixed(2)
         sdata.json = json
         sdata.line = line.substring(1)
         await this.$nextTick()
@@ -647,7 +648,7 @@
           {
             dataType: 'json',
             type: 'post',
-            url: 'http://www.motortrip.cn:8080/motortrip/api/journeys/addJourneysPc',
+            url: 'http://120.79.33.51:8080/motortrip/api/journeys/addJourneysPc',
             data: sdata
           }
         )
@@ -1011,16 +1012,15 @@
           }
         )
         this.index = this.day.length - 1
+        this.initMap()
       },
       async deleteDay (index) {
         if (index !== 0) {
           this.index = index - 1
+        } else {
+          this.index = index
         }
         this.day.splice(index, 1)
-        if (this.day[index]) {
-          await this.$nextTick()
-          this.day.splice(1, index, Object.assign(this.day[index], {departure: this.day[this.index].destination}))
-        }
         this.initMap()
         this.resetTime('delete')
       },
@@ -1051,11 +1051,11 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'https://www.motortrip.cn/users/checkAuth'
+            url: 'https://120.79.33.51/users/checkAuth'
           }
         )
         if (data.auth === false) {
-          location.href = 'https://www.motortrip.cn/journeys'
+          location.href = 'https://120.79.33.51/journeys'
           return
         }
         this.userId = data.uid

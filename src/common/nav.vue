@@ -28,7 +28,7 @@
     .nav(v-if="custom")
       ul(style="position: relative;")
         li.submit
-          Button(type="warning", size="large", @click.native.stop="resetData") 重置
+          Button(type="warning", size="large", @click.native.stop="resetData", style="margin-right: 10px;") 重置
           Button(type="warning", size="large", @click.native.stop="save") 保存
 </template>
 <script>
