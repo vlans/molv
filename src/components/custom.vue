@@ -85,7 +85,7 @@
           途经地
         </span>
         <Button type="warning" size="small" class="add_passing" @click.stop="addPassing(day[index].passing)">添加途经地</Button>
-        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)" :key="v">
+        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)" :key="v + Math.random()">
           <Cascader placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
@@ -176,7 +176,7 @@
           <Checkbox v-model="serviceValue">服务点</Checkbox>
         </div>
         <Row :gutter="16" style="margin-top: 10px;height: calc(100% - 63px);overflow: auto;box-sizing: content-box">
-          <Col style="margin-bottom: 10px;" span="8" v-for="(item, v) in scenicList" :key="v" v-if="item.image">
+          <Col style="margin-bottom: 10px;" span="8" v-for="(item, v) in scenicList" :key="v + Math.random()" v-if="item.image">
             <Card>
               <p slot="title">
                 {{item.title}}
