@@ -1,7 +1,7 @@
 <template lang="jade">
   .navbar
     .logo
-      a(href="https://www.motortrip.cn/")
+      a(href="https://120.79.33.51/")
         img(src="../assets/logo.png")
     .nav(v-if="!custom")
       ul(style="position: relative;")
@@ -17,9 +17,9 @@
         li.user-item(v-show="flag")
           ul
             li
-              a.user_jump(href="https://www.motortrip.cn/users/journey") 个人中心
+              a.user_jump(href="https://120.79.33.51/users/journey") 个人中心
             li
-              a.user_jump(href="https://www.motortrip.cn/users/collect") 我的收藏
+              a.user_jump(href="https://120.79.33.51/users/collect") 我的收藏
             li
               router-link.user_jump(to="/order") 我的订单
             li(@click="editPwd") 修改密码
@@ -42,19 +42,19 @@
           if (!v) {
             this.nav.splice(6, 1, {
               name: '登陆/注册',
-              route: 'https://www.motortrip.cn/landing?redirect=' + location.href,
-              licon: v.user.avatar === '/images/icon/avatar.png' ? 'http://www.motortrip.cn:8080/motortrip/dist/static/avatar.png' : v.user.avatar,
+              route: 'https://120.79.33.51/landing?redirect=' + location.href,
+              licon: v.user.avatar === '/images/icon/avatar.png' ? 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png' : v.user.avatar,
               login: false,
-              down: 'http://www.motortrip.cn:8080/motortrip/dist/static/down.png'
+              down: 'http://120.79.33.51:8080/motortrip/dist/static/down.png'
             })
             return
           }
           this.nav.splice(6, 1, {
             name: '登陆/注册',
-            route: 'https://www.motortrip.cn/landing?redirect=' + location.href,
-            licon: v.user.avatar === '/images/icon/avatar.png' ? 'http://www.motortrip.cn:8080/motortrip/dist/static/avatar.png' : v.user.avatar,
+            route: 'https://120.79.33.51/landing?redirect=' + location.href,
+            licon: v.user.avatar === '/images/icon/avatar.png' ? 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png' : v.user.avatar,
             login: true,
-            down: 'http://www.motortrip.cn:8080/motortrip/dist/static/down.png'
+            down: 'http://120.79.33.51:8080/motortrip/dist/static/down.png'
           })
         }
       }
@@ -83,16 +83,16 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'https://www.motortrip.cn/users/logout'
+            url: 'https://120.79.33.51/users/logout'
           }
         )
         this.flag = false
         this.nav.splice(6, 1, {
           name: '登陆/注册',
-          route: 'https://www.motortrip.cn/landing?redirect=' + location.href,
-          licon: 'http://www.motortrip.cn:8080/motortrip/dist/static/avatar.png',
+          route: 'https://120.79.33.51/landing?redirect=' + location.href,
+          licon: 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png',
           login: false,
-          down: 'http://www.motortrip.cn:8080/motortrip/dist/static/down.png'
+          down: 'http://120.79.33.51:8080/motortrip/dist/static/down.png'
         })
       },
       editPwd () {
@@ -127,19 +127,19 @@
         nav: [
           {
             name: '首页',
-            route: 'https://www.motortrip.cn/test'
+            route: 'https://120.79.33.51/test'
           },
           {
             name: '目的地',
-            route: 'https://www.motortrip.cn/destinations'
+            route: 'https://120.79.33.51/destinations'
           },
           {
             name: '锦囊',
-            route: 'https://www.motortrip.cn/tips'
+            route: 'https://120.79.33.51/tips'
           },
           {
             name: '路书',
-            route: 'https://www.motortrip.cn/journeys'
+            route: 'https://120.79.33.51/journeys'
           },
           {
             name: '摩旅商城',
@@ -148,11 +148,11 @@
           },
           {
             name: '摩旅社区',
-            route: 'https://www.motortrip.cn/forum'
+            route: 'https://120.79.33.51/forum'
           },
           {
             name: '登陆/注册',
-            route: 'https://www.motortrip.cn/landing?redirect=' + location.href,
+            route: 'https://120.79.33.51/landing?redirect=' + location.href,
             licon: 'static/avatar.png',
             login: false,
             down: '/static/down.png'
@@ -160,7 +160,7 @@
           {
             name: '',
             route: 'https://120.79.33.51/search',
-            icon: 'http://www.motortrip.cn:8080/motortrip/dist/static/search.png'
+            icon: 'http://120.79.33.51:8080/motortrip/dist/static/search.png'
           }
         ]
       }
