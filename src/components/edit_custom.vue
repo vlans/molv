@@ -85,7 +85,7 @@
           途经地
         </span>
         <Button type="warning" size="small" class="add_passing" @click.stop="addPassing(day[index].passing)">添加途经地</Button>
-        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)">
+        <p v-for="(item, v) in day[index].passing" style="position: relative;" @click.stop="flagPassIndex(v)" :key="v">
           <Cascader placeholder="请选择途经地" change-on-select @on-change="changePass" class="address_cascader" :class="{address_pass: day[index].passing.length > 1}" v-model="item.address" :data="addressData" filterable></Cascader>
           <Icon v-if="day[index].passing.length > 1" type="trash-a" size="26" color="#ed3f14" class="delete_pass" @click.native="deletePass(day[index].passing, v, item.address)"></Icon>
         </p>
