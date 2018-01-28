@@ -19,7 +19,7 @@
 </script>
 <style lang="scss" scoped>
   .foot {
-    background: url('http://120.79.33.51:8080/motortrip/dist/static/foot_bg.png') no-repeat;
+    background: url('http://www.motortrip.cn:8080/motortrip/dist/static/foot_bg.png') no-repeat;
     background-size: cover;
     text-align: center;
     padding-top: 20px;

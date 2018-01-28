@@ -541,7 +541,7 @@
         }
         var { data, errorCode } = await this.$http(
           {
-            url: 'http://120.79.33.51:8080/motortrip/api/destinations/destinationsPcListQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/destinations/destinationsPcListQuery',
             type: 'post',
             data: sdata
           }
@@ -648,7 +648,7 @@
           {
             dataType: 'json',
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/journeys/addJourneysPc',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/journeys/addJourneysPc',
             data: sdata
           }
         )
@@ -662,7 +662,7 @@
         Object.assign(this.$data, this.$options.data())
         this.initMap()
 
-        // window.location.href = "https://120.79.33.51/journeys/" + data.journeysId
+        // window.location.href = "https://www.motortrip.cn/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
@@ -1051,11 +1051,11 @@
               withCredentials: true
             },
             type: 'get',
-            url: 'https://120.79.33.51/users/checkAuth'
+            url: 'https://www.motortrip.cn/users/checkAuth'
           }
         )
         if (data.auth === false) {
-          location.href = 'https://120.79.33.51/journeys'
+          location.href = 'https://www.motortrip.cn/journeys'
           return
         }
         this.userId = data.uid

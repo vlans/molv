@@ -46,7 +46,7 @@
               withCredentials: true
             },
             type: 'post',
-            url: 'https://120.79.33.51/users/changePassword',
+            url: 'https://www.motortrip.cn/users/changePassword',
             data: { old_password: this.original, password: this.pwd, repeat_password: this.rpwd }
           }
         )

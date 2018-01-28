@@ -8,13 +8,13 @@
         .left_nav
           ul
             li
-              a.route(href="https://120.79.33.51/users/journey") 我的行程单
+              a.route(href="https://www.motortrip.cn/users/journey") 我的行程单
             li.active
               a.route(href="javascript:void(0);") 我的订单
             li
-              a.route(href="https://120.79.33.51/users/collect") 我的收藏
+              a.route(href="https://www.motortrip.cn/users/collect") 我的收藏
             li
-              a.route(href="https://120.79.33.51/users/center") 个人中心
+              a.route(href="https://www.motortrip.cn/users/center") 个人中心
         .content
           .title
             span 我的订单
@@ -56,7 +56,7 @@
       initUser () {
         try {
           this.userName = JSON.parse(localStorage.getItem('user')).user.username
-          this.avatar = JSON.parse(localStorage.getItem('user')).user.avatar === '/images/icon/avatar.png' ? 'http://120.79.33.51:8080/motortrip/dist/static/avatar.png' : JSON.parse(localStorage.getItem('user')).user.avatar
+          this.avatar = JSON.parse(localStorage.getItem('user')).user.avatar === '/images/icon/avatar.png' ? 'http://www.motortrip.cn:8080/motortrip/dist/static/avatar.png' : JSON.parse(localStorage.getItem('user')).user.avatar
         } catch (e) {}
       },
       async initData () {
@@ -64,7 +64,7 @@
         var { data, errorCode } = await this.$http(
           {
             type: 'post',
-            url: 'http://120.79.33.51:8080/motortrip/api/user/userOrderListQuery',
+            url: 'http://www.motortrip.cn:8080/motortrip/api/user/userOrderListQuery',
             data: {userId: id, number: this.current, pageNum: '10'}
           }
         )
@@ -86,7 +86,7 @@
 <style lang="scss" scoped>
   .user {
     height: 300px;
-    background: url('http://120.79.33.51:8080/motortrip/dist/static/bg_user_banner.jpg') no-repeat;
+    background: url('http://www.motortrip.cn:8080/motortrip/dist/static/bg_user_banner.jpg') no-repeat;
     background-size: cover;
     text-align: center;
     line-height: 300px;
