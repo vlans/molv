@@ -635,7 +635,7 @@
         var json = JSON.stringify(this.day)
         sdata.journeys_cities = journeys_cities
         sdata.journeys_details = journeys_details
-        sdata.miles = String(miles).toFixed(2)
+        sdata.miles = Number(miles).toFixed(2)
         sdata.json = json
         sdata.line = line.substring(1)
         await this.$nextTick()

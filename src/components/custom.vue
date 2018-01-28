@@ -640,7 +640,7 @@
         var json = JSON.stringify(this.day)
         sdata.journeys_cities = journeys_cities
         sdata.journeys_details = journeys_details
-        sdata.miles = String(miles).toFixed(2)
+        sdata.miles = Number(miles).toFixed(2)
         sdata.json = json
         sdata.line = line.substring(1)
         await this.$nextTick()
@@ -928,7 +928,7 @@
         })
         this.day[this.index].concatPass = list
         if (this.day[this.index].showMap) {
-          this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
+            this.day[this.index].departure.length > 1 && this.day[this.index].destination.length > 1 && this.initMap()
         } else {
           this.day[this.index].showMap = true
           this.day[this.index].btnTxt = '添加景点'
