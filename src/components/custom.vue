@@ -661,8 +661,7 @@
         window.localStorage.removeItem('metadata')
         Object.assign(this.$data, this.$options.data())
         this.initMap()
-
-        // window.location.href = "https://www.motortrip.cn/journeys/" + data.journeysId
+        window.location.href = "https://www.motortrip.cn/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false

@@ -654,7 +654,7 @@
         this.saveLuModel = true
         window.localStorage.removeItem('roadBook')
         window.localStorage.removeItem('metadata')
-        // window.location.href = "https://www.motortrip.cn/journeys/" + data.journeysId
+        window.location.href = "https://www.motortrip.cn/journeys/" + data.journeysId
       },
       saveValidator () {
         var flag = false
