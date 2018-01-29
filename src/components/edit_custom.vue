@@ -59,7 +59,7 @@
           {{day[index].formatTime}}
         </span>
         <p class="distance">
-          总共路程 <span class="light_txt">{{day[index].distance ? day[index].distance.toFixed(1) + '公里' : '0公里'}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime ? day[index].rideTime + '小时' : '0小时'}}</span>
+          总共路程 <span class="light_txt">{{day[index].distance ? Number(day[index].distance).toFixed(1) + '公里' : '0公里'}}</span>，预计骑行 <span class="light_txt">{{day[index].rideTime ? day[index].rideTime + '小时' : '0小时'}}</span>
         </p>
         <p class="distance_time">
           总共游玩 <span class="light_txt">{{day[index].sceniCount ? day[index].sceniCount + '个' : '0个'}}</span>景点，预计游玩 <span class="light_txt">{{day[index].playTime ? day[index].playTime + '小时' : '0小时'}}</span>
@@ -449,8 +449,8 @@
         this.incloud.splice(this.scenicIndex, 1)
         day.distance -= Number(this.deleteScenicTxt.rideDistance)
         day.playTime -= Number(this.deleteScenicTxt.playTime)
-        day.distance = day.distance.toFixed(1)
-        day.playTime = day.playTime.toFixed(1)
+        day.distance = Number(day.distance).toFixed(1)
+        day.playTime = Number(day.playTime).toFixed(1)
         day.sceniCount = day.startTrip.concat(day.passTrip).concat(day.endTrip).length
         this.deleteScenicModel = false
         this.changeScenic = true
