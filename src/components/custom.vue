@@ -312,13 +312,13 @@
               if (n.rideDistance) {
                 day.distance += Number(n.rideDistance)
               } else {
-                driving.search(day.startDeparture, n.scenicName)
+                driving.search(day.startDeparture, n.point)
               }
             } else {
               if (n.rideDistance) {
                 day.distance += Number(n.rideDistance)
               } else {
-                driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                driving.search(trip[i - 1].point, trip[i].point)
               }
             }
           })
@@ -332,13 +332,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.startTrip[day.startTrip.length - 1].scenicName, n.scenicName)
+                  driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -349,13 +349,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(this.day[this.index].startDeparture, n.scenicName)
+                  driving.search(this.day[this.index].startDeparture, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -370,13 +370,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.passTrip[day.passTrip.length - 1].scenicName, n.scenicName)
+                  driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -388,13 +388,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.passTrip[day.passTrip.length - 1].scenicName, n.scenicName)
+                  driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -406,13 +406,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.startTrip[day.startTrip.length - 1].scenicName, n.scenicName)
+                  driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -424,13 +424,13 @@
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(this.day[this.index].startDeparture, n.scenicName)
+                  driving.search(this.day[this.index].startDeparture, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].scenicName, trip[i].scenicName)
+                  driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
@@ -478,7 +478,8 @@
               id: v.introduceId,
               playTime: v.spend_time,
               rideTime: '',
-              rideDistance: ''
+              rideDistance: '',
+              point: new BMap.Point(v.lng, v.lat)
             }
           )
           day.playTime += Number(v.spend_time)
@@ -490,7 +491,8 @@
               id: v.introduceId,
               playTime: v.spend_time,
               rideTime: '',
-              rideDistance: ''
+              rideDistance: '',
+              point: new BMap.Point(v.lng, v.lat)
             }
           )
           day.playTime += Number(v.spend_time)
@@ -502,7 +504,8 @@
               id: v.introduceId,
               playTime: v.spend_time,
               rideTime: '',
-              rideDistance: ''
+              rideDistance: '',
+              point: new BMap.Point(v.lng, v.lat)
             }
           )
           day.playTime += Number(v.spend_time)
