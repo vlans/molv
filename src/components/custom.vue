@@ -96,17 +96,17 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].startTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
+            <div class="content_txt" v-if="day[index].startTrip[v + 1]">
               <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
               <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].startTrip, v, item, day[index].incloudStart)"></Icon>
@@ -115,17 +115,17 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].passTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
+            <div class="content_txt" v-if="day[index].passTrip[v + 1]">
               <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
               <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].passTrip, v, item, day[index].incloudPass)"></Icon>
@@ -134,17 +134,17 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].endTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
+            <div class="content_txt" v-if="day[index].endTrip[v + 1]">
               <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
               <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].endTrip, v, item, day[index].incloudEnd)"></Icon>
@@ -281,6 +281,30 @@
       }
     },
     methods: {
+      rideDistancePromise (map, x, y) {
+        return new Promise((resolve, reject) => {
+          var driving = new window.BMap.DrivingRoute(map, {
+            renderOptions: {map: map, autoViewport: true},
+            onSearchComplete (ret) {
+              if (ret && ret.taxiFare) {
+                var rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
+                var rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
+                resolve({
+                  rideDistance,
+                  rideTime,
+                  distance: Number(rideDistance),
+                  rideTime: Number(rideTime)
+                })
+                // trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
+                // trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
+                // day.distance += Number(trip[index].rideDistance)
+                // day.rideTime += Number(trip[index].rideTime)
+              }
+            }
+          })
+          driving.search(x, y)
+        })
+      },
       async computedScenic () {
         this.changeDistance = true
         var _this = this
@@ -291,34 +315,52 @@
         var map = new window.BMap.Map('adpter')
         day.distance = Number(this.initDistance)
         map.centerAndZoom(new BMap.Point(116.404, 39.915), 12)
-        var driving = new window.BMap.DrivingRoute(map, {
-          renderOptions: {map: map, autoViewport: true},
-          async onSearchComplete (ret) {
-            await _this.$nextTick()
-            if (ret && ret.taxiFare) {
-              trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
-              trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
-              day.distance += Number(trip[index].rideDistance)
-              day.rideTime += Number(trip[index].rideTime)
-            }
-          }
-        })
-        await this.$nextTick()
+        // var driving = new window.BMap.DrivingRoute(map, {
+        //   renderOptions: {map: map, autoViewport: true},
+        //   onSearchComplete (ret) {
+        //     if (ret && ret.taxiFare) {
+        //       trip[index].rideDistance = (ret.taxiFare.distance / 1000).toFixed(1)
+        //       trip[index].rideTime = Math.ceil((ret.taxiFare.distance / 1000).toFixed(1) / 60)
+        //       day.distance += Number(trip[index].rideDistance)
+        //       day.rideTime += Number(trip[index].rideTime)
+        //     }
+        //   }
+        // })
         if (day.startTrip.length) {
           trip = day.startTrip
-          trip.forEach((n, i) => {
+          trip.forEach(async (n, i) => {
             index = i
             if (i === 0) {
               if (n.rideDistance) {
                 day.distance += Number(n.rideDistance)
               } else {
-                driving.search(day.startDeparture, n.point)
+                var {
+                  rideDistance,
+                  rideTime,
+                  distance,
+                  rideTime
+                } = await this.rideDistancePromise(map, day.startDeparture, n.point)
+                n.rideDistance = rideDistance
+                n.rideTime = rideTime
+                day.distance += distance
+                day.rideTime += rideTime
+                // driving.search(day.startDeparture, n.point)
               }
             } else {
               if (n.rideDistance) {
                 day.distance += Number(n.rideDistance)
               } else {
-                driving.search(trip[i - 1].point, trip[i].point)
+                var {
+                  rideDistance,
+                  rideTime,
+                  distance,
+                  rideTime
+                } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                n.rideDistance = rideDistance
+                n.rideTime = rideTime
+                day.distance += distance
+                day.rideTime += rideTime
+                // driving.search(trip[i - 1].point, trip[i].point)
               }
             }
           })
@@ -326,120 +368,243 @@
         if (day.passTrip.length) {
           trip = day.passTrip
           if (day.startTrip.length) {
-            trip.forEach((n, i) => {
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, day.startTrip[day.startTrip.length - 1].point, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           } else {
-            trip.forEach((n, i) => {
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(this.day[this.index].startDeparture, n.point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, this.day[this.index].startDeparture, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(this.day[this.index].startDeparture, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           }
         }
         if (day.endTrip.length) {
+          console.log(2)
           trip = day.endTrip
           if (day.startTrip.length && day.passTrip.length) {
-            trip.forEach((n, i) => {
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, day.passTrip[day.passTrip.length - 1].point, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           }
           if (!day.startTrip.length && day.passTrip.length) {
-            trip.forEach((n, i) => {
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, day.passTrip[day.passTrip.length - 1].point, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(day.passTrip[day.passTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           }
           if (day.startTrip.length && !day.passTrip.length) {
-            trip.forEach((n, i) => {
+            console.log(3)
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
+                  console.log(333)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, day.startTrip[day.startTrip.length - 1].point, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(day.startTrip[day.startTrip.length - 1].point, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           }
           if (!day.startTrip.length && !day.passTrip.length) {
-            trip.forEach((n, i) => {
+            trip.forEach(async (n, i) => {
               index = i
               if (i === 0) {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(this.day[this.index].startDeparture, n.point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, this.day[this.index].startDeparture, n.point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(this.day[this.index].startDeparture, n.point)
                 }
               } else {
                 if (n.rideDistance) {
                   day.distance += Number(n.rideDistance)
                 } else {
-                  driving.search(trip[i - 1].point, trip[i].point)
+                  var {
+                    rideDistance,
+                    rideTime,
+                    distance,
+                    rideTime
+                  } = await this.rideDistancePromise(map, trip[i - 1].point, trip[i].point)
+                  n.rideDistance = rideDistance
+                  n.rideTime = rideTime
+                  day.distance += distance
+                  day.rideTime += rideTime
+                  // driving.search(trip[i - 1].point, trip[i].point)
                 }
               }
             })
           }
         }
-        day.distance = Math.floor(day.distance)
+        // day.distance = Math.floor(day.distance)
         this.changeDistance = false
         map = null
-        driving = null
+        // driving = null
       },
       async deleteTrip (arr, i, v, incloud) {
         this.scenicDelArr = arr
@@ -512,6 +677,7 @@
           day.incloudPass.push(v.introduceId)
         }
         day.sceniCount = day.startTrip.concat(day.passTrip).concat(day.endTrip).length
+        console.log(day)
         this.computedScenic()
         this.scenicList.splice(i, 1)
       },

@@ -141,11 +141,11 @@
             name: '路书',
             route: 'https://www.motortrip.cn/journeys'
           },
-          {
-            name: '摩旅商城',
-            active: true,
-            route: '/'
-          },
+          // {
+          //   name: '摩旅商城',
+          //   active: true,
+          //   route: '/'
+          // },
           {
             name: '摩旅社区',
             route: 'https://www.motortrip.cn/forum'
