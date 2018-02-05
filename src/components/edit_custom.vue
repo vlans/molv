@@ -92,20 +92,21 @@
       </div>
       <div class="scenic_list">
         <Timeline>
-          <TimelineItem color="green" v-for="(item, v) in day[index].startTrip" :key="item.id + Math.random()">
+          <TimelineItem color="green" v-for="(item, v) in day[index].startTrip" :key="item.id">
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].startTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+            <div class="content_txt" v-if="day[index].startTrip[v + 1]">
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].startTrip, v, item, day[index].incloudStart)"></Icon>
@@ -114,16 +115,17 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].passTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+            <div class="content_txt" v-if="day[index].passTrip[v + 1]">
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].passTrip, v, item, day[index].incloudPass)"></Icon>
@@ -132,16 +134,17 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="txt" v-if="day[index].endTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].playTime + '小时' : ''}}</span>
               </h4>
             </div>
-            <div class="content_txt">
-              <Icon type="android-bicycle" size="26" class="riding_icon"></Icon>
+            <div class="content_txt" v-if="day[index].endTrip[v + 1]">
+              <!--<Icon type="android-bicycle" size="26" class="riding_icon"></Icon>-->
+              <i class="mototrip icon-moto-left" style="float: left;"></i>
               <p class="riding_txt">
-                <span class="light_txt">{{item.rideDistance ? item.rideDistance + '公里' : ''}}</span>
+                <span class="light_txt">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].rideDistance + '公里' : ''}}</span>
                 <span class="time">，预计骑行</span>
-                <span class="light_txt">{{item.rideTime ? item.rideTime + '小时' : ''}}</span>
+                <span class="light_txt">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].rideTime + '小时' : ''}}</span>
               </p>
             </div>
             <Icon type="trash-a" size="22" color="#ed3f14" class="delete_pass delete_ll" @click.native.stop="deleteTrip(day[index].endTrip, v, item, day[index].incloudEnd)"></Icon>
