@@ -97,7 +97,7 @@
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
                 <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : '0小时'}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].startTrip[v + 1]">
@@ -116,7 +116,7 @@
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
                 <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : '0小时'}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].passTrip[v + 1]">
@@ -135,7 +135,7 @@
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
                 <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : '0小时'}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].endTrip[v + 1]">
