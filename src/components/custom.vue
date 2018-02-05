@@ -96,8 +96,8 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt" v-if="day[index].startTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{day[index].startTrip[v + 1] ? day[index].startTrip[v + 1].playTime + '小时' : ''}}</span>
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].startTrip[v + 1]">
@@ -115,8 +115,8 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt" v-if="day[index].passTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{day[index].passTrip[v + 1] ? day[index].passTrip[v + 1].playTime + '小时' : ''}}</span>
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].passTrip[v + 1]">
@@ -134,8 +134,8 @@
             <Icon type="location" slot="dot" size="28"></Icon>
             <div>
               <h4 class="scenic_title">{{item.scenicName}}
-                <span class="txt" v-if="day[index].endTrip[v + 1]">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
-                <span class="light_txt time">{{day[index].endTrip[v + 1] ? day[index].endTrip[v + 1].playTime + '小时' : ''}}</span>
+                <span class="txt">&nbsp;&nbsp;&nbsp;预计游玩时间</span>
+                <span class="light_txt time">{{item.playTime ? item.playTime + '小时' : ''}}</span>
               </h4>
             </div>
             <div class="content_txt" v-if="day[index].endTrip[v + 1]">
