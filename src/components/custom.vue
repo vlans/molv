@@ -1028,13 +1028,13 @@
             console.log(point)
             this.day[this.index].departurePoint = new BMap.Point(point.lng, point.lat)
             this.day[this.index].startDeparture = new BMap.Point(point.lng, point.lat)
-            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
+            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.day[this.index].departurePoint, this.day[this.index].destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         this.day[this.index].destination.length > 1 && this.myGeo.getPoint(this.day[this.index].destination.join(''), (point) => {
           if (point) {
             this.day[this.index].destinationPoint = new BMap.Point(point.lng, point.lat)
-            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
+            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.day[this.index].departurePoint, this.day[this.index].destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         map = null
