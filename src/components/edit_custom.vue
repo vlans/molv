@@ -785,12 +785,16 @@
             {
               day: String(k + 1),
               address_id: v.startId,
-              type: "1"
+              type: "1",
+              x: n.point.lng,
+              y: n.point.lat
             },
             {
               day: String(k + 1),
               address_id: v.endId,
-              type: "3"
+              type: "3",
+              x: n.point.lng,
+              y: n.point.lat
             }
           )
           v.passId.forEach((n, i) => {
@@ -798,7 +802,9 @@
               {
                 day: String(k + 1),
                 address_id: n,
-                type: "2"
+                type: "2",
+                x: n.point.lng,
+                y: n.point.lat
               }
             )
           })
