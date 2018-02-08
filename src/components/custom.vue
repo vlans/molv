@@ -740,21 +740,39 @@
         var index = 0
         var line = ''
         var miles = 0
-        var start = this.departurePoint.lng + ',' + this.departurePoint.lat + '|'
-        var end = '|' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
-        var pass = []
-        this.day[this.index].passingDes.forEach(v => {
-          pass.push(
-            v.lng + ',' + v.lat
-          )
+        // var start = this.departurePoint.lng + ',' + this.departurePoint.lat + '|'
+        var start = ''
+        // var end = '|' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
+        var end = ''
+        var passing = ''
+        var spassing = ''
+        var markerStart = ''
+        var markerEnd = ''
+        var pstart = ''
+        var pend = ''
+        this.day.forEach(o => {
+          var pass = []
+          start = o.departurePoint.lng + ',' + o.departurePoint.lat + '|'
+          pstart = o.departurePoint.lng + ',' + o.departurePoint.lat + ';'
+          this.day[this.index].passingDes.forEach(v => {
+            pass.push(
+              v.lng + ',' + v.lat
+            )
+          })
+          end = '|' + o.destinationPoint.lng + ',' + o.destinationPoint.lat
+          pend = ';' + o.destinationPoint.lng + ',' + o.destinationPoint.lat
+          passing = pass.join('|')
+          spassing = pass.join(';')
+          markerStart += start + passing + end
+          markerEnd += pstart + spassing + pend
         })
-        var passing = pass.join('|')
-        var markerStart = start + passing + end
-        var pstart = this.departurePoint.lng + ',' + this.departurePoint.lat + ';'
-        var pend = ';' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
-        var spassing = pass.join(';')
-        var markerEnd = pstart + spassing + pend
-        sdata.image = markerStart + str + markerEnd
+        // var passing = pass.join('|')
+        // var markerStart = start + passing + end
+        // var pstart = this.departurePoint.lng + ',' + this.departurePoint.lat + ';'
+        // var pend = ';' + this.destinationPoint.lng + ',' + this.destinationPoint.lat
+        // var spassing = pass.join(';')
+        // var markerEnd = pstart + spassing + pend
+        sdata.image += markerStart + str + markerEnd
         this.day.forEach((v, k) => {
           var trip = []
           miles += Number(v.distance)
@@ -787,15 +805,15 @@
               day: String(k + 1),
               address_id: v.startId,
               type: "1",
-              x: n.point.lng,
-              y: n.point.lat
+              x: v.departurePoint.lng,
+              y: v.departurePoint.lat
             },
             {
               day: String(k + 1),
               address_id: v.endId,
               type: "3",
-              x: n.point.lng,
-              y: n.point.lat
+              x: v.destinationPoint.lng,
+              y: v.destinationPoint.lat
             }
           )
           v.passId.forEach((n, i) => {
@@ -804,8 +822,8 @@
                 day: String(k + 1),
                 address_id: n,
                 type: "2",
-                x: n.point.lng,
-                y: n.point.lat
+                x: v.passingDes[i].lng,
+                y: v.passingDes[i].lat
               }
             )
           })
@@ -819,6 +837,7 @@
         sdata.json = json
         sdata.line = line.substring(1)
         await this.$nextTick()
+        console.log(sdata)
         var { data, errorCode } = await this.$http(
           {
             dataType: 'json',
@@ -1004,20 +1023,18 @@
           }
         })
         this.day[this.index].startDeparture = ''
-        this.departurePoint = ''
-        this.destinationPoint = ''
         this.day[this.index].departure.length > 1 && this.myGeo.getPoint(this.day[this.index].departure.join(''), (point) => {
           if (point) {
             console.log(point)
-            this.departurePoint = new BMap.Point(point.lng, point.lat)
+            this.day[this.index].departurePoint = new BMap.Point(point.lng, point.lat)
             this.day[this.index].startDeparture = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
+            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         this.day[this.index].destination.length > 1 && this.myGeo.getPoint(this.day[this.index].destination.join(''), (point) => {
           if (point) {
-            this.destinationPoint = new BMap.Point(point.lng, point.lat)
-            this.departurePoint && this.destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
+            this.day[this.index].destinationPoint = new BMap.Point(point.lng, point.lat)
+            this.day[this.index].departurePoint && this.day[this.index].destinationPoint && (this.changeMap = true) && this.driving.search(this.departurePoint, this.destinationPoint, {waypoints: this.day[this.index].passingDes})
           }
         })
         map = null
@@ -1031,6 +1048,7 @@
             this.day[this.index].concatStart = [start]
             this.day[this.index].startId = s[1].id
             this.day[this.index].provinceId = s[0].id
+            console.log(this.day[this.index])
           }
           this.day[this.index].startScenic = [v[0]]
           if (this.day[this.index].showMap) {
