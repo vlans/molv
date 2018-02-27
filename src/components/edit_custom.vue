@@ -776,23 +776,23 @@
           trip = v.startTrip.concat(v.passTrip).concat(v.endTrip)
           trip.forEach((n, i) => {
             index = i
-            if (i !== 0) {
-              // sdata.journeys_details[index] = {
-              //   day: String(k + 1),
-              //   hour: n.spend_time,
-              //   sort: "1",
-              //   destination_id: n.id,
-              //   miles: n.rideDistance
-              // }
-              // driving.search(this.day[k].startDeparture, n.scenicName)
-            // } else {
-              sdata.journeys_details.push({
+            if (i === 0) {
+              sdata.journeys_details[index] = {
+                day: String(k + 1),
+                hour: n.spend_time,
+                sort: "1",
+                destination_id: n.id,
+                miles: n.rideDistance
+              }
+              driving.search(this.day[k].startDeparture, n.scenicName)
+            } else {
+              sdata.journeys_details[index] = {
                 day: String(k + 1),
                 hour: n.rideTime,
                 sort: String(i + 1),
                 destination_id: n.id,
                 miles: n.rideDistance
-              })
+              }
               // driving.search(trip[i - 1].scenicName, trip[i].scenicName)
             }
             line += '>' + n.scenicName
